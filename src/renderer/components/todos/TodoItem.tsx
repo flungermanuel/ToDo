@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { CalendarClock, CalendarDays, ChevronRight, ListTree, Trash2 } from 'lucide-react'
 import { subtaskProgress, type DeadlineView } from '@core/index'
-import type { Category, IsoDate, Todo } from '@shared/types'
+import type { Todo } from '@shared/types'
 import { todoActions } from '@renderer/state/actions'
 import { dayLabel, relativeDays, useToday } from '@renderer/lib/dates'
 import { cn } from '@renderer/lib/utils'
@@ -12,17 +12,12 @@ import { EditableText } from '@renderer/components/ui/EditableText'
 import { IconButton } from '@renderer/components/ui/IconButton'
 import { PriorityPicker } from '@renderer/components/ui/PriorityPicker'
 import { DeadlineLinkMenu } from './DeadlineLinkMenu'
+import type { ListContext } from './listContext'
 import { MoveToCategoryMenu } from './MoveToCategoryMenu'
 import { SubtaskList } from './SubtaskList'
 
-interface TodoItemProps {
+interface TodoItemProps extends ListContext {
   todo: Todo
-  /** Alle Deadlines (für das Verknüpfungs-Menü) */
-  deadlines: DeadlineView[]
-  todoTitles: Map<string, string>
-  categories: Category[]
-  /** Der Tag, der gerade angezeigt wird – dann muss das Datum nicht extra am Todo stehen */
-  contextDay?: IsoDate
 }
 
 // So lange bleibt ein frisch abgehaktes Todo stehen, bevor es zu "Erledigt" wandert

@@ -103,10 +103,14 @@ export interface CategoryGroup {
 
 /**
  * Alle Kategorien in ihrer Reihenfolge – auch leere –, jeweils mit ihren
- * sortierten offenen und erledigten Todos.
+ * sortierten offenen und erledigten Todos. Mit `todos` lässt sich eine Auswahl
+ * gruppieren (z. B. nur die Todos eines Tages), sonst alle.
  */
-export function groupTodosByCategory(data: AppData): CategoryGroup[] {
-  const sorted = sortTodos(data.todos)
+export function groupTodosByCategory(
+  data: AppData,
+  todos: readonly Todo[] = data.todos
+): CategoryGroup[] {
+  const sorted = sortTodos(todos)
   return data.categories.map((category) => {
     const todos = sorted.filter((t) => t.categoryId === category.id)
     return {

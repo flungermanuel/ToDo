@@ -1,33 +1,25 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { ChevronRight } from 'lucide-react'
-import type { CategoryGroup, DeadlineView } from '@core/index'
-import type { Category } from '@shared/types'
+import type { CategoryGroup } from '@core/index'
 import { CATEGORY_COLOR_META } from '@renderer/lib/categoryColors'
 import { cn } from '@renderer/lib/utils'
 import { CategoryMenu } from '@renderer/components/categories/CategoryMenu'
 import { RenameCategoryInput } from '@renderer/components/categories/RenameCategoryInput'
+import type { ListContext } from './listContext'
 import { TodoItem } from './TodoItem'
 
 interface CategorySectionProps {
   group: CategoryGroup
   collapsed: boolean
   onToggle: () => void
-  deadlines: DeadlineView[]
-  todoTitles: Map<string, string>
-  categories: Category[]
+  list: ListContext
 }
 
 // Ein Kategorie-Block: Überschrift (klickbar zum Ein-/Ausklappen) und die Todos.
 // Erledigte stehen ausgegraut am Ende.
-export function CategorySection({
-  group,
-  collapsed,
-  onToggle,
-  deadlines,
-  todoTitles,
-  categories
-}: CategorySectionProps) {
+export function CategorySection({ group, collapsed, onToggle, list }: CategorySectionProps) {
+  const { categories } = list
   const [renaming, setRenaming] = useState(false)
   const { category, offen, erledigt } = group
   const color = CATEGORY_COLOR_META[category.farbe].css
@@ -88,13 +80,7 @@ export function CategorySection({
             <ul>
               <AnimatePresence initial={false}>
                 {[...offen, ...erledigt].map((todo) => (
-                  <TodoItem
-                    key={todo.id}
-                    todo={todo}
-                    deadlines={deadlines}
-                    todoTitles={todoTitles}
-                    categories={categories}
-                  />
+                  <TodoItem key={todo.id} todo={todo} {...list} />
                 ))}
               </AnimatePresence>
             </ul>

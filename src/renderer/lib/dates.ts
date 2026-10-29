@@ -21,6 +21,27 @@ export function dayLabel(date: IsoDate, today: IsoDate): string {
   return formatShortDate(date)
 }
 
+/** Liegt der Tag nah genug an heute für "Heute"/"Morgen"/"Gestern"? */
+export function isRelativeDay(date: IsoDate, today: IsoDate): boolean {
+  return Math.abs(daysBetween(today, date)) <= 1
+}
+
+const longFormat = new Intl.DateTimeFormat('de-DE', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long'
+})
+
+/** "Donnerstag, 29. Oktober" */
+export function formatLongDate(date: IsoDate): string {
+  return longFormat.format(toLocalDate(date))
+}
+
+function toLocalDate(date: IsoDate): Date {
+  const [y, m, d] = date.split('-').map(Number) as [number, number, number]
+  return new Date(y, m - 1, d)
+}
+
 const shortFormat = new Intl.DateTimeFormat('de-DE', {
   weekday: 'short',
   day: 'numeric',

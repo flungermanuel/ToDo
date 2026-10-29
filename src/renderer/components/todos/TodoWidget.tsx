@@ -1,16 +1,11 @@
-import { useState } from 'react'
-import { CalendarDays } from 'lucide-react'
-import { deadlineViews, groupTodosByCategory } from '@core/index'
+import { deadlineViews } from '@core/index'
 import type { AppData } from '@shared/types'
-import { categoryActions, todoActions } from '@renderer/state/actions'
-import { useCollapsedCategories } from '@renderer/state/useCollapsedCategories'
-import { useLastCategory } from '@renderer/state/useLastCategory'
-import { dayLabel, useToday } from '@renderer/lib/dates'
+import { useView } from '@renderer/state/viewStore'
+import { dayLabel, formatLongDate, isRelativeDay, useToday } from '@renderer/lib/dates'
 import { Widget } from '@renderer/components/Widget'
-import { AddRow } from '@renderer/components/ui/AddRow'
-import { DatePill } from '@renderer/components/ui/DatePill'
-import { CategoryChips } from './CategoryChips'
-import { CategorySection } from './CategorySection'
+import { DayView } from './DayView'
+import type { ListContext } from './listContext'
+import { ViewNavigation } from './ViewNavigation'
 
 interface TodoWidgetProps {
   data: AppData
@@ -18,60 +13,32 @@ interface TodoWidgetProps {
 
 export function TodoWidget({ data }: TodoWidgetProps) {
   const today = useToday()
-  const deadlines = deadlineViews(data, today)
-  const todoTitles = new Map(data.todos.map((t) => [t.id, t.titel]))
-  const groups = groupTodosByCategory(data)
-  const offen = groups.reduce((sum, g) => sum + g.offen.length, 0)
-  const collapsed = useCollapsedCategories()
-  const [categoryId, setCategoryId] = useLastCategory(data.categories)
-  // Datum für das nächste neue Todo – Standard ist der angezeigte Tag
-  const [newDate, setNewDate] = useState<string | null>(null)
-  const datum = newDate ?? today
+  const view = useView()
 
-  function addTodo(titel: string) {
-    todoActions.add({ titel, categoryId, datum })
-    setNewDate(null)
-    // Damit man das neue Todo auch sieht
-    collapsed.expand(categoryId)
+  const list: ListContext = {
+    deadlines: deadlineViews(data, today),
+    todoTitles: new Map(data.todos.map((t) => [t.id, t.titel])),
+    categories: data.categories
   }
 
+  // "Heute · Donnerstag, 29. Oktober" bzw. nur "Dienstag, 3. November"
+  const relative = isRelativeDay(view.day, today) ? dayLabel(view.day, today) : null
+
   return (
-    <Widget title="Todos" meta={offen > 0 ? `${offen} offen` : undefined}>
-      <AddRow placeholder="Neues Todo" onAdd={addTodo} autoFocus>
-        <DatePill value={datum} onChange={setNewDate} label="Datum für neues Todo">
-          <CalendarDays className="size-3.5" />
-          <span className="tabular-nums">{dayLabel(datum, today)}</span>
-        </DatePill>
-      </AddRow>
-      <CategoryChips
-        categories={data.categories}
-        value={categoryId}
-        onChange={setCategoryId}
-        onCreate={(name) => categoryActions.add(name)}
-      />
-
-      {data.todos.length === 0 && (
-        <p className="px-3 pt-1 pb-3 text-xs text-fg-subtle">
-          Tippe oben ein Todo ein und drücke Enter.
-        </p>
-      )}
-
-      <div className="mt-1">
-        {groups.map((group) => {
-          const isCollapsed = collapsed.isCollapsed(group.category.id, group.offen.length > 0)
-          return (
-            <CategorySection
-              key={group.category.id}
-              group={group}
-              collapsed={isCollapsed}
-              onToggle={() => collapsed.toggle(group.category.id, isCollapsed)}
-              deadlines={deadlines}
-              todoTitles={todoTitles}
-              categories={data.categories}
-            />
-          )
-        })}
-      </div>
+    <Widget
+      title={
+        <span className="flex items-baseline gap-2">
+          {relative ?? formatLongDate(view.day)}
+          {relative && (
+            <span className="text-[13px] font-normal text-fg-muted">
+              {formatLongDate(view.day)}
+            </span>
+          )}
+        </span>
+      }
+      meta={<ViewNavigation unit="Tag" isCurrent={view.day === today} />}
+    >
+      <DayView data={data} day={view.day} list={list} />
     </Widget>
   )
 }

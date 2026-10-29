@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { cn } from '@renderer/lib/utils'
 
 interface WidgetProps {
-  title: string
+  title: ReactNode
   // Kleine Zusatzinfo rechts neben dem Titel, z. B. "3 offen"
   meta?: ReactNode
   className?: string

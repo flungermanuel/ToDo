@@ -116,6 +116,13 @@ describe('groupTodosByCategory', () => {
     expect(groups[1]!.offen.map((t) => t.titel)).toEqual(['Gym'])
     expect(groups[2]).toMatchObject({ offen: [], erledigt: [] })
 
+    // nur eine Auswahl gruppieren
+    const nurGym = groupTodosByCategory(
+      data,
+      data.todos.filter((t) => t.titel === 'Gym')
+    )
+    expect(nurGym.map((g) => g.offen.length)).toEqual([0, 1, 0])
+
     data = renameCategory(data, STUDIUM, 'Uni')
     expect(groupTodosByCategory(data)[0]!.category.name).toBe('Uni')
   })
