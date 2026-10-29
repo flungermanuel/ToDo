@@ -27,14 +27,23 @@ Priority = 1 | 2 | 3 | 4 | 5            // 1 = niedrigste, 5 = höchste, Standar
 Category = { id, name, farbe }          // farbe: red | orange | yellow | green | blue | purple | gray
 Subtask  = { id, titel, erledigt }
 Todo     = { id, titel, erledigt, erstelltAm, prioritaet, unteraufgaben: Subtask[],
-             categoryId, deadlineId?: string }
+             categoryId, datum?: IsoDate, deadlineId?: string }
 Deadline = { id, titel, datum /* "YYYY-MM-DD" */, erledigt, prioritaet }
-AppData  = { version: 2, categories: Category[], todos: Todo[], deadlines: Deadline[] }
+AppData  = { version: 3, categories: Category[], todos: Todo[], deadlines: Deadline[] }
 ```
 
 Versionen der Datei (Migration in src/main/storage/migrations.ts):
 - 1 (V1): ohne Kategorien → Startkategorien anlegen, alle Todos nach „Persönlich“
 - 2 (V1.1): mit Kategorien
+- 3 (V1.2): Todos mit optionalem Datum (ältere bleiben „ohne Datum“)
+
+Datum & Zeit (V1.2):
+- „Effektives Datum“ eines Todos = eigenes Datum, sonst Datum der verknüpften Deadline
+- Neues Todo bekommt den angezeigten Tag, anderes Datum am Eingabefeld wählbar
+- Woche = Montag bis Sonntag, Kalenderwoche nach ISO 8601, Sa/So farblich abgesetzt
+- Überfällige offene Todos: in der heutigen Tagesansicht (bzw. vor der angezeigten Woche)
+  unter „Überfällig“
+- Tag/Woche links wird gemerkt (localStorage), Kalender startet in der Wochenansicht
 
 Kategorien:
 - Startkategorien „Studium“ (blau) und „Persönlich“ (orange)
@@ -71,11 +80,20 @@ Priorität: am Todo sichtbar.
 - Hamburger-Menü links öffnet eine Seitenleiste (30 % Breite); Inhalt vorerst
   Kategorienverwaltung, Platzhalter für Einstellungen
 
+## V1.2 (Tag v1.2)
+- Todo-Widget: Umschalter Tag | Woche, Navigation ‹ Heute ›
+- Tagesansicht: Deadlines des Tages, Überfällig, Todos nach Kategorien, Ohne Datum
+- Wochenansicht: Mo–So untereinander, Todos mit Kategorie-Farbpunkt, „+“ pro Tag,
+  Klick auf einen Tag öffnet seine Tagesansicht
+- Kalender-Widget unter den Deadlines (Woche/Monat): · offene Todos, ! Deadline;
+  Klick auf einen Tag öffnet links die Tagesansicht
+- Kategorie-Chips mit Abstand zur Eingabezeile, schmale Scrollbalken
+
 ## Design
 - Systemschrift (-apple-system, "Segoe UI"), viel Weißraum, 12 px Eckenradius, dezente Schatten
 - Eigene schlanke Titelleiste, keine Standard-Windows-Optik
 - Farben als CSS-Variablen, Dark Mode über prefers-color-scheme
-- Nach V1: Kalender wo man mit punkten minimalistisch sieht was heute zu tun ist und farbig markiert ist ob es eine deadline gibt
+- Kalender (seit V1.2): minimal, · für Todos und ! für Deadlines
 
 ## Arbeitsregeln
 - Erst Plan vorschlagen, dann umsetzen
