@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { loadData, useAppStore } from './state/appStore'
 import { TitleBar } from './components/TitleBar'
-import { Widget } from './components/Widget'
 import { TodoWidget } from './components/todos/TodoWidget'
+import { DeadlineWidget } from './components/deadlines/DeadlineWidget'
 
 export function App() {
   const { data, status } = useAppStore()
@@ -23,9 +23,7 @@ export function App() {
         status === 'ready' && (
           <main className="grid min-h-0 flex-1 grid-cols-[3fr_2fr] gap-4 px-4 pb-4">
             <TodoWidget todos={data.todos} />
-            <Widget title="Deadlines">
-              <p className="px-3 py-2 text-fg-muted">Noch keine Deadlines.</p>
-            </Widget>
+            <DeadlineWidget data={data} />
           </main>
         )
       )}
