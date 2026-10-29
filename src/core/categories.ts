@@ -43,7 +43,11 @@ export function setCategoryColor(data: AppData, id: string, farbe: CategoryColor
 }
 
 /** Ist der Name schon vergeben? `exceptId` = die Kategorie, die gerade umbenannt wird. */
-export function isNameTaken(data: AppData, name: string, exceptId?: string): boolean {
+export function isNameTaken(
+  data: Pick<AppData, 'categories'>,
+  name: string,
+  exceptId?: string
+): boolean {
   const wanted = name.trim().toLocaleLowerCase('de')
   return data.categories.some((c) => c.id !== exceptId && c.name.toLocaleLowerCase('de') === wanted)
 }

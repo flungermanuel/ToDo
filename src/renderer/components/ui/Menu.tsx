@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react'
 import { DropdownMenu } from 'radix-ui'
-import { Check } from 'lucide-react'
+import { Check, ChevronRight } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 
 // Dünne Hüllen um Radix-DropdownMenu mit einheitlicher macOS-Optik.
@@ -61,5 +61,44 @@ export function MenuRadioItem({
         <Check className="size-3.5" strokeWidth={2.5} />
       </DropdownMenu.ItemIndicator>
     </DropdownMenu.RadioItem>
+  )
+}
+
+// --- Untermenüs (z. B. Farbe wählen) ---
+
+export const MenuSub = DropdownMenu.Sub
+
+export function MenuSubTrigger({
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof DropdownMenu.SubTrigger>) {
+  return (
+    <DropdownMenu.SubTrigger
+      className={cn(itemClass, 'data-[state=open]:bg-active', className)}
+      {...props}
+    >
+      {children}
+      <ChevronRight className="ml-auto size-3.5 opacity-60" />
+    </DropdownMenu.SubTrigger>
+  )
+}
+
+export function MenuSubContent({
+  className,
+  ...props
+}: ComponentProps<typeof DropdownMenu.SubContent>) {
+  return (
+    <DropdownMenu.Portal>
+      <DropdownMenu.SubContent
+        sideOffset={6}
+        collisionPadding={8}
+        className={cn(
+          'z-50 min-w-36 rounded-lg border border-separator bg-surface p-1 shadow-card',
+          className
+        )}
+        {...props}
+      />
+    </DropdownMenu.Portal>
   )
 }
