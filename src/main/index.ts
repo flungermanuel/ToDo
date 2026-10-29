@@ -1,6 +1,8 @@
 import { join } from 'node:path'
 import { app, BrowserWindow, nativeTheme } from 'electron'
 import { registerIpcHandlers } from './ipc'
+import { JsonStorage } from './storage/JsonStorage'
+import type { Storage } from './storage/Storage'
 
 // Muss zu --bg in globals.css passen, sonst blitzt beim Start kurz eine andere Farbe auf.
 const BACKGROUND = { light: '#f5f5f7', dark: '#1c1c1e' }
@@ -35,8 +37,12 @@ function createWindow(): void {
   }
 }
 
+// Hier wird entschieden, welche Speicherung die App nutzt – später z. B. SqliteStorage.
+let storage: Storage | undefined
+
 app.whenReady().then(() => {
-  registerIpcHandlers()
+  storage = new JsonStorage(join(app.getPath('userData'), 'todo-data.json'))
+  registerIpcHandlers(storage)
   createWindow()
 
   app.on('activate', () => {
@@ -46,4 +52,15 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
+})
+
+// Vor dem Beenden laufende Schreibvorgänge abwarten, damit nichts verloren geht.
+let flushed = false
+app.on('will-quit', (event) => {
+  if (flushed || !storage) return
+  event.preventDefault()
+  void storage.flush().finally(() => {
+    flushed = true
+    app.quit()
+  })
 })
