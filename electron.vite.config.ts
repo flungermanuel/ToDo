@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 // Gemeinsame Aliase: jede Schicht importiert core/shared über einen festen Pfad
 // statt über "../../..".
@@ -20,6 +21,6 @@ export default defineConfig({
     resolve: {
       alias: { ...alias, '@renderer': resolve(__dirname, 'src/renderer') }
     },
-    plugins: [react()]
+    plugins: [react(), tailwindcss()]
   }
 })

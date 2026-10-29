@@ -1,9 +1,14 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
+import { IpcChannels, type Api } from '@shared/ipc'
 
-// Einzige Brücke zwischen Renderer und Main.
-// Wird in den nächsten Schritten um load/save und Fenster-Buttons erweitert.
-const api = {}
+// Einzige Brücke zwischen Renderer und Main. Der Renderer sieht nur diese
+// Funktionen – kein ipcRenderer, kein Node.
+const api: Api = {
+  window: {
+    minimize: () => ipcRenderer.send(IpcChannels.windowMinimize),
+    toggleMaximize: () => ipcRenderer.send(IpcChannels.windowToggleMaximize),
+    close: () => ipcRenderer.send(IpcChannels.windowClose)
+  }
+}
 
 contextBridge.exposeInMainWorld('api', api)
-
-export type Api = typeof api

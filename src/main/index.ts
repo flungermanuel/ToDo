@@ -1,5 +1,9 @@
 import { join } from 'node:path'
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, nativeTheme } from 'electron'
+import { registerIpcHandlers } from './ipc'
+
+// Muss zu --bg in globals.css passen, sonst blitzt beim Start kurz eine andere Farbe auf.
+const BACKGROUND = { light: '#f5f5f7', dark: '#1c1c1e' }
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -8,6 +12,9 @@ function createWindow(): void {
     minWidth: 760,
     minHeight: 520,
     show: false,
+    // Ohne Windows-Rahmen: Titelleiste und Fensterknöpfe zeichnen wir selbst.
+    frame: false,
+    backgroundColor: nativeTheme.shouldUseDarkColors ? BACKGROUND.dark : BACKGROUND.light,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       // Sicherheit: Renderer bekommt keinen Node-Zugriff, nur was preload freigibt.
@@ -29,6 +36,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  registerIpcHandlers()
   createWindow()
 
   app.on('activate', () => {

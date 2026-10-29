@@ -1,0 +1,109 @@
+@import 'tailwindcss';
+
+/*
+ * Farben als CSS-Variablen, angelehnt an die macOS-Systemfarben.
+ * Dark Mode schaltet automatisch über prefers-color-scheme um.
+ * Komponenten nutzen nur die Tailwind-Namen unten (bg-surface, text-fg …),
+ * nie Hex-Werte direkt.
+ */
+:root {
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --hover: rgb(0 0 0 / 0.04);
+  --active: rgb(0 0 0 / 0.07);
+  --fg: #1d1d1f;
+  --fg-muted: #6e6e73;
+  --fg-subtle: #aeaeb2;
+  --separator: rgb(60 60 67 / 0.12);
+  --accent: #007aff;
+  --danger: #ff3b30;
+  --success: #34c759;
+  --warning: #ff9500;
+  --shadow-card:
+    0 0 0 1px rgb(0 0 0 / 0.04), 0 1px 2px rgb(0 0 0 / 0.04), 0 6px 20px rgb(0 0 0 / 0.05);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e;
+    --surface: #2c2c2e;
+    --hover: rgb(255 255 255 / 0.05);
+    --active: rgb(255 255 255 / 0.09);
+    --fg: #f5f5f7;
+    --fg-muted: #98989d;
+    --fg-subtle: #636366;
+    --separator: rgb(255 255 255 / 0.1);
+    --accent: #0a84ff;
+    --danger: #ff453a;
+    --success: #30d158;
+    --warning: #ff9f0a;
+    --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.05), 0 6px 20px rgb(0 0 0 / 0.3);
+
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-hover: var(--hover);
+  --color-active: var(--active);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-separator: var(--separator);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  --radius-card: 12px;
+  --shadow-card: var(--shadow-card);
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    font-size: 13px;
+    /* Desktop-Gefühl: kein Text-Markieren von Bedienelementen, kein Gummiband-Scrollen */
+    user-select: none;
+    overscroll-behavior: none;
+  }
+
+  input,
+  textarea {
+    user-select: text;
+  }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+    outline-offset: 2px;
+  }
+}
+
+/* Bereiche, an denen man das rahmenlose Fenster ziehen kann */
+@utility app-drag {
+  -webkit-app-region: drag;
+}
+@utility app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
