@@ -9,6 +9,8 @@ import { cleanTitle } from './text'
 export interface NewTodo {
   titel: string
   prioritaet?: Priority
+  /** Fehlt sie oder existiert sie nicht, landet das Todo in der ersten Kategorie. */
+  categoryId?: string
   deadlineId?: string
 }
 
@@ -18,7 +20,10 @@ export function createTodo(
   ctx: CoreContext = defaultContext
 ): AppData {
   const titel = cleanTitle(input.titel)
-  if (!titel) return data
+  const categoryId = data.categories.some((c) => c.id === input.categoryId)
+    ? input.categoryId
+    : data.categories[0]?.id
+  if (!titel || !categoryId) return data
 
   const todo: Todo = {
     id: ctx.newId(),
@@ -26,7 +31,8 @@ export function createTodo(
     erledigt: false,
     erstelltAm: ctx.now().toISOString(),
     prioritaet: input.prioritaet ?? DEFAULT_PRIORITY,
-    unteraufgaben: []
+    unteraufgaben: [],
+    categoryId
   }
   if (input.deadlineId && data.deadlines.some((d) => d.id === input.deadlineId)) {
     todo.deadlineId = input.deadlineId

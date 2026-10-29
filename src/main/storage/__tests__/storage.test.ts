@@ -7,7 +7,11 @@ import { JsonStorage } from '../JsonStorage'
 import { migrate, UnreadableDataError } from '../migrations'
 
 const sample: AppData = {
-  version: 1,
+  version: 2,
+  categories: [
+    { id: 'c1', name: 'Uni', farbe: 'purple' },
+    { id: 'c2', name: 'Sport', farbe: 'green' }
+  ],
   deadlines: [{ id: 'd1', titel: 'Abgabe', datum: '2026-11-05', erledigt: false, prioritaet: 4 }],
   todos: [
     {
@@ -17,7 +21,33 @@ const sample: AppData = {
       erstelltAm: '2026-10-29T08:00:00.000Z',
       prioritaet: 3,
       unteraufgaben: [{ id: 's1', titel: 'Aufgabe 1', erledigt: true }],
+      categoryId: 'c2',
       deadlineId: 'd1'
+    }
+  ]
+}
+
+// So sah eine gespeicherte Datei in V1 aus (ohne Kategorien)
+const v1File = {
+  version: 1,
+  deadlines: [{ id: 'd1', titel: 'Abgabe', datum: '2026-11-05', erledigt: false, prioritaet: 4 }],
+  todos: [
+    {
+      id: 't1',
+      titel: 'Rechnen',
+      erledigt: false,
+      erstelltAm: '2026-10-29T08:00:00.000Z',
+      prioritaet: 4,
+      unteraufgaben: [],
+      deadlineId: 'd1'
+    },
+    {
+      id: 't2',
+      titel: 'Gym',
+      erledigt: true,
+      erstelltAm: '2026-10-29T09:00:00.000Z',
+      prioritaet: 2,
+      unteraufgaben: []
     }
   ]
 }
@@ -25,6 +55,32 @@ const sample: AppData = {
 describe('migrate', () => {
   it('übernimmt gültige Daten unverändert', () => {
     expect(migrate(structuredClone(sample))).toEqual(sample)
+  })
+
+  it('migriert V1-Dateien: Startkategorien, alle Todos nach "Persönlich", nichts geht verloren', () => {
+    const result = migrate(structuredClone(v1File))
+    expect(result.version).toBe(2)
+    expect(result.categories.map((c) => c.name)).toEqual(['Studium', 'Persönlich'])
+    expect(result.todos).toHaveLength(2)
+    expect(result.todos.every((t) => t.categoryId === 'cat-persoenlich')).toBe(true)
+    // alles andere bleibt, wie es war
+    expect(result.todos[0]).toMatchObject({ titel: 'Rechnen', prioritaet: 4, deadlineId: 'd1' })
+    expect(result.todos[1]).toMatchObject({ titel: 'Gym', erledigt: true })
+    expect(result.deadlines).toEqual(v1File.deadlines)
+  })
+
+  it('Version 2: unbekannte Kategorie → Ersatzkategorie, ohne Kategorien → Startkategorien', () => {
+    const result = migrate({
+      version: 2,
+      categories: [{ id: 'c1', name: 'Uni', farbe: 'pink' }],
+      todos: [{ id: 't1', titel: 'X', categoryId: 'gibt-es-nicht' }],
+      deadlines: []
+    })
+    expect(result.categories).toEqual([{ id: 'c1', name: 'Uni', farbe: 'gray' }])
+    expect(result.todos[0]!.categoryId).toBe('c1')
+
+    const empty = migrate({ version: 2, categories: [], todos: [], deadlines: [] })
+    expect(empty.categories.map((c) => c.name)).toEqual(['Studium', 'Persönlich'])
   })
 
   it('lehnt fremde Formate und unbekannte Versionen ab', () => {

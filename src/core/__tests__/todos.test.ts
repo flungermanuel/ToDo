@@ -30,9 +30,18 @@ describe('createTodo', () => {
         erledigt: false,
         erstelltAm: '2026-10-29T08:00:01.000Z',
         prioritaet: 3,
-        unteraufgaben: []
+        unteraufgaben: [],
+        // ohne Angabe: erste Kategorie
+        categoryId: 'cat-studium'
       }
     ])
+  })
+
+  it('übernimmt eine gültige Kategorie, sonst die erste', () => {
+    const ctx = testContext()
+    let data = createTodo(emptyAppData(), { titel: 'A', categoryId: 'cat-persoenlich' }, ctx)
+    data = createTodo(data, { titel: 'B', categoryId: 'gibt-es-nicht' }, ctx)
+    expect(data.todos.map((t) => t.categoryId)).toEqual(['cat-persoenlich', 'cat-studium'])
   })
 
   it('ignoriert leere Titel', () => {

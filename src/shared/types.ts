@@ -9,6 +9,34 @@ export type Priority = 1 | 2 | 3 | 4 | 5
 export const PRIORITIES: readonly Priority[] = [1, 2, 3, 4, 5]
 export const DEFAULT_PRIORITY: Priority = 3
 
+/** Farben wie bei den Listen in macOS-Erinnerungen. Gespeichert wird nur der Name. */
+export type CategoryColor = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'gray'
+
+export const CATEGORY_COLORS: readonly CategoryColor[] = [
+  'red',
+  'orange',
+  'yellow',
+  'green',
+  'blue',
+  'purple',
+  'gray'
+]
+
+export interface Category {
+  id: string
+  name: string
+  farbe: CategoryColor
+}
+
+/** Startkategorien – feste IDs, damit die Migration alter Daten eindeutig ist. */
+export const DEFAULT_CATEGORIES: readonly Category[] = [
+  { id: 'cat-studium', name: 'Studium', farbe: 'blue' },
+  { id: 'cat-persoenlich', name: 'Persönlich', farbe: 'orange' }
+]
+
+/** Hierhin wandern Todos aus V1 (die noch keine Kategorie hatten). */
+export const LEGACY_CATEGORY_ID = 'cat-persoenlich'
+
 export interface Subtask {
   id: string
   titel: string
@@ -23,6 +51,7 @@ export interface Todo {
   erstelltAm: string
   prioritaet: Priority
   unteraufgaben: Subtask[]
+  categoryId: string
   /** Optionale Verknüpfung: Todo abhaken → Deadline zeigt ✓ */
   deadlineId?: string
 }
@@ -36,14 +65,22 @@ export interface Deadline {
   prioritaet: Priority
 }
 
-export const CURRENT_VERSION = 1
+/** Version 1: V1 ohne Kategorien · Version 2: mit Kategorien (V1.1) */
+export const CURRENT_VERSION = 2
 
 export interface AppData {
   version: typeof CURRENT_VERSION
+  /** Reihenfolge = Reihenfolge der Anzeige. Es gibt immer mindestens eine. */
+  categories: Category[]
   todos: Todo[]
   deadlines: Deadline[]
 }
 
 export function emptyAppData(): AppData {
-  return { version: CURRENT_VERSION, todos: [], deadlines: [] }
+  return {
+    version: CURRENT_VERSION,
+    categories: DEFAULT_CATEGORIES.map((c) => ({ ...c })),
+    todos: [],
+    deadlines: []
+  }
 }

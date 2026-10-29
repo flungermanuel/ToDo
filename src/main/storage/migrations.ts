@@ -1,8 +1,11 @@
 import {
-  CURRENT_VERSION,
+  CATEGORY_COLORS,
+  LEGACY_CATEGORY_ID,
   PRIORITIES,
   emptyAppData,
   type AppData,
+  type Category,
+  type CategoryColor,
   type Deadline,
   type Priority,
   type Subtask,
@@ -11,17 +14,38 @@ import {
 
 // Liest beliebigen Inhalt aus der Datei und macht daraus gültige AppData.
 // Kaputte Einträge werden verworfen statt die ganze App abstürzen zu lassen.
-// Wenn sich das Datenmodell ändert, kommt hier ein Schritt "version 1 → 2" dazu.
+//
+// Versionen:
+//   1 (V1)   – ohne Kategorien → Startkategorien anlegen, alle Todos nach "Persönlich"
+//   2 (V1.1) – mit Kategorien
 
 export class UnreadableDataError extends Error {}
 
 export function migrate(raw: unknown): AppData {
   if (!isObject(raw)) throw new UnreadableDataError('Datei enthält kein Objekt')
-  if (raw['version'] !== CURRENT_VERSION) {
-    throw new UnreadableDataError(`Unbekannte Datenversion: ${String(raw['version'])}`)
+  const version = raw['version']
+  if (version !== 1 && version !== 2) {
+    throw new UnreadableDataError(`Unbekannte Datenversion: ${String(version)}`)
   }
 
+  // emptyAppData() enthält schon die Startkategorien – für Version 1 bleiben sie so
   const data = emptyAppData()
+  if (version >= 2) {
+    const seen = new Set<string>()
+    const categories = asArray(raw['categories']).flatMap((c) => {
+      const category = toCategory(c)
+      if (!category || seen.has(category.id)) return []
+      seen.add(category.id)
+      return [category]
+    })
+    // Es muss immer mindestens eine Kategorie geben
+    if (categories.length > 0) data.categories = categories
+  }
+
+  const categoryIds = new Set(data.categories.map((c) => c.id))
+  const fallbackCategoryId = categoryIds.has(LEGACY_CATEGORY_ID)
+    ? LEGACY_CATEGORY_ID
+    : data.categories[0]!.id
   data.deadlines = asArray(raw['deadlines']).flatMap((d) => {
     const deadline = toDeadline(d)
     return deadline ? [deadline] : []
@@ -37,6 +61,8 @@ export function migrate(raw: unknown): AppData {
       delete todo.deadlineId
     }
     if (todo.deadlineId) linked.add(todo.deadlineId)
+    // Todos ohne (gültige) Kategorie – z. B. alle aus V1 – bekommen die Ersatzkategorie
+    if (!categoryIds.has(todo.categoryId)) todo.categoryId = fallbackCategoryId
     return [todo]
   })
 
@@ -54,10 +80,19 @@ function toTodo(value: unknown): Todo | null {
     unteraufgaben: asArray(value['unteraufgaben']).flatMap((s) => {
       const subtask = toSubtask(s)
       return subtask ? [subtask] : []
-    })
+    }),
+    categoryId: isString(value['categoryId']) ? value['categoryId'] : ''
   }
   if (isString(value['deadlineId'])) todo.deadlineId = value['deadlineId']
   return todo
+}
+
+function toCategory(value: unknown): Category | null {
+  if (!isObject(value) || !isString(value['id']) || !isString(value['name'])) return null
+  const farbe = CATEGORY_COLORS.includes(value['farbe'] as CategoryColor)
+    ? (value['farbe'] as CategoryColor)
+    : 'gray'
+  return { id: value['id'], name: value['name'], farbe }
 }
 
 function toSubtask(value: unknown): Subtask | null {
