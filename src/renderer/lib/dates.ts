@@ -37,9 +37,17 @@ export function formatLongDate(date: IsoDate): string {
   return longFormat.format(toLocalDate(date))
 }
 
-function toLocalDate(date: IsoDate): Date {
+/** IsoDate → lokales Date-Objekt (für Intl-Formatierung) */
+export function toLocalDate(date: IsoDate): Date {
   const [y, m, d] = date.split('-').map(Number) as [number, number, number]
   return new Date(y, m - 1, d)
+}
+
+const rangeFormat = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' })
+
+/** "26. Okt. – 1. Nov." */
+export function formatRange(from: IsoDate, to: IsoDate): string {
+  return `${rangeFormat.format(toLocalDate(from))} – ${rangeFormat.format(toLocalDate(to))}`
 }
 
 const shortFormat = new Intl.DateTimeFormat('de-DE', {

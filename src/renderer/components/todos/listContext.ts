@@ -12,4 +12,6 @@ export interface ListContext {
   categories: Category[]
   /** Gerade angezeigter Tag – dann steht das Datum nicht extra am Todo */
   contextDay?: IsoDate
+  /** Farbpunkt der Kategorie am Todo zeigen (wenn nicht nach Kategorie gruppiert wird) */
+  showCategory?: boolean
 }

@@ -5,6 +5,7 @@ import { subtaskProgress, type DeadlineView } from '@core/index'
 import type { Todo } from '@shared/types'
 import { todoActions } from '@renderer/state/actions'
 import { dayLabel, relativeDays, useToday } from '@renderer/lib/dates'
+import { CATEGORY_COLOR_META } from '@renderer/lib/categoryColors'
 import { cn } from '@renderer/lib/utils'
 import { Checkbox } from '@renderer/components/ui/Checkbox'
 import { DatePill } from '@renderer/components/ui/DatePill'
@@ -23,7 +24,14 @@ interface TodoItemProps extends ListContext {
 // So lange bleibt ein frisch abgehaktes Todo stehen, bevor es zu "Erledigt" wandert
 const DONE_DELAY_MS = 450
 
-export function TodoItem({ todo, deadlines, todoTitles, categories, contextDay }: TodoItemProps) {
+export function TodoItem({
+  todo,
+  deadlines,
+  todoTitles,
+  categories,
+  contextDay,
+  showCategory
+}: TodoItemProps) {
   const today = useToday()
   const [justChecked, setJustChecked] = useState(false)
   const [expanded, setExpanded] = useState(false)
@@ -32,6 +40,7 @@ export function TodoItem({ todo, deadlines, todoTitles, categories, contextDay }
   const linked = deadlines.find((v) => v.deadline.id === todo.deadlineId)
   const showDate = todo.datum !== undefined && todo.datum !== contextDay
   const overdue = !todo.erledigt && todo.datum !== undefined && todo.datum < today
+  const category = showCategory ? categories.find((c) => c.id === todo.categoryId) : undefined
 
   function handleToggle() {
     if (todo.erledigt) {
@@ -64,15 +73,25 @@ export function TodoItem({ todo, deadlines, todoTitles, categories, contextDay }
         <Checkbox checked={checked} onChange={handleToggle} label={`„${todo.titel}“ abhaken`} />
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <EditableText
-            value={todo.titel}
-            label="Todo bearbeiten"
-            onSave={(titel) => todoActions.update(todo.id, { titel })}
-            className={cn(
-              'transition-colors',
-              checked && 'text-fg-muted line-through decoration-fg-subtle'
+          <div className="flex min-w-0 items-center gap-2">
+            {category && (
+              <span
+                className="size-2 shrink-0 rounded-full"
+                style={{ backgroundColor: CATEGORY_COLOR_META[category.farbe].css }}
+                title={category.name}
+                aria-label={`Kategorie ${category.name}`}
+              />
             )}
-          />
+            <EditableText
+              value={todo.titel}
+              label="Todo bearbeiten"
+              onSave={(titel) => todoActions.update(todo.id, { titel })}
+              className={cn(
+                'transition-colors',
+                checked && 'text-fg-muted line-through decoration-fg-subtle'
+              )}
+            />
+          </div>
           {(progress.gesamt > 0 || linked || showDate) && (
             <div className="mt-0.5 flex min-w-0 items-center gap-2 text-[11px]">
               {showDate && (

@@ -27,6 +27,9 @@
   --cat-blue: #007aff;
   --cat-purple: #af52de;
   --cat-gray: #8e8e93;
+  /* Wochenende: leichter Farbton für Samstag/Sonntag */
+  --weekend: rgb(88 86 214 / 0.06);
+  --weekend-fg: #7d7bc9;
   --shadow-card:
     0 0 0 1px rgb(0 0 0 / 0.04), 0 1px 2px rgb(0 0 0 / 0.04), 0 6px 20px rgb(0 0 0 / 0.05);
 
@@ -54,6 +57,8 @@
     --cat-blue: #0a84ff;
     --cat-purple: #bf5af2;
     --cat-gray: #98989d;
+    --weekend: rgb(125 122 255 / 0.08);
+    --weekend-fg: #9d9bf0;
     --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.05), 0 6px 20px rgb(0 0 0 / 0.3);
 
     color-scheme: dark;
@@ -73,6 +78,8 @@
   --color-danger: var(--danger);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-weekend: var(--weekend);
+  --color-weekend-fg: var(--weekend-fg);
 
   --radius-card: 12px;
   --shadow-card: var(--shadow-card);
@@ -104,6 +111,12 @@
     outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
     outline-offset: 2px;
   }
+}
+
+/* Schmale, dezente Scrollbalken wie unter macOS statt der breiten Windows-Balken */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--fg) 18%, transparent) transparent;
 }
 
 /* Bereiche, an denen man das rahmenlose Fenster ziehen kann */

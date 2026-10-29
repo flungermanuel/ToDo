@@ -13,7 +13,7 @@ interface WidgetProps {
 export function Widget({ title, meta, className, children }: WidgetProps) {
   return (
     <section className={cn('flex min-h-0 flex-col rounded-card bg-surface shadow-card', className)}>
-      <header className="flex items-baseline justify-between px-5 pt-4 pb-2">
+      <header className="flex min-h-8 items-center justify-between gap-3 px-5 pt-4 pb-2">
         <h2 className="text-[15px] font-semibold tracking-tight">{title}</h2>
         {meta && <span className="text-xs text-fg-muted tabular-nums">{meta}</span>}
       </header>
