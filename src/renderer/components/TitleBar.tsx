@@ -8,54 +8,58 @@ interface TitleBarProps {
 }
 
 // Schlanke Titelleiste im macOS-Stil: Ampel-Knöpfe und Menü links, Logo mittig.
-// Die ganze Leiste ist Zieh-Fläche, nur die Knöpfe nicht.
+// Die Leiste ist Zieh-Fläche fürs Fenster. Alles Klickbare liegt in einem gemeinsamen
+// "no-drag"-Bereich mit etwas Rand – sonst schluckt Windows Klicks knapp neben den Knöpfen.
 export function TitleBar({ sidebarOpen, onToggleSidebar }: TitleBarProps) {
   const focused = useWindowFocus()
 
   return (
-    <header className="app-drag relative flex h-11 shrink-0 items-center px-4">
-      <div className="app-no-drag group flex items-center gap-2">
-        <TrafficLight
-          label="Schließen"
-          color="#ff5f57"
-          focused={focused}
-          onClick={() => window.api.window.close()}
+    <header className="app-drag relative flex h-11 shrink-0 items-center px-2">
+      <div className="app-no-drag flex h-full items-center gap-3 px-2">
+        <div className="group flex items-center gap-2">
+          <TrafficLight
+            label="Schließen"
+            color="#ff5f57"
+            focused={focused}
+            onClick={() => window.api.window.close()}
+          >
+            <X strokeWidth={3} />
+          </TrafficLight>
+          <TrafficLight
+            label="Minimieren"
+            color="#febc2e"
+            focused={focused}
+            onClick={() => window.api.window.minimize()}
+          >
+            <Minus strokeWidth={3} />
+          </TrafficLight>
+          <TrafficLight
+            label="Maximieren"
+            color="#28c840"
+            focused={focused}
+            onClick={() => window.api.window.toggleMaximize()}
+          >
+            <Plus strokeWidth={3} />
+          </TrafficLight>
+        </div>
+
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          aria-label={sidebarOpen ? 'Seitenleiste schließen' : 'Seitenleiste öffnen'}
+          aria-expanded={sidebarOpen}
+          title={sidebarOpen ? 'Seitenleiste schließen' : 'Seitenleiste öffnen'}
+          className={cn(
+            'flex size-8 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-active hover:text-fg',
+            sidebarOpen && 'bg-active text-fg'
+          )}
         >
-          <X strokeWidth={3} />
-        </TrafficLight>
-        <TrafficLight
-          label="Minimieren"
-          color="#febc2e"
-          focused={focused}
-          onClick={() => window.api.window.minimize()}
-        >
-          <Minus strokeWidth={3} />
-        </TrafficLight>
-        <TrafficLight
-          label="Maximieren"
-          color="#28c840"
-          focused={focused}
-          onClick={() => window.api.window.toggleMaximize()}
-        >
-          <Plus strokeWidth={3} />
-        </TrafficLight>
+          <Menu className="size-[18px]" />
+        </button>
       </div>
 
-      <button
-        type="button"
-        onClick={onToggleSidebar}
-        aria-label={sidebarOpen ? 'Seitenleiste schließen' : 'Seitenleiste öffnen'}
-        aria-expanded={sidebarOpen}
-        title={sidebarOpen ? 'Seitenleiste schließen' : 'Seitenleiste öffnen'}
-        className={cn(
-          'app-no-drag ml-4 flex size-7 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-active hover:text-fg',
-          sidebarOpen && 'bg-active text-fg'
-        )}
-      >
-        <Menu className="size-4" />
-      </button>
-
-      <div className="pointer-events-none absolute inset-x-0 flex justify-center">
+      {/* Nur so breit wie das Logo – darf nicht über den Knöpfen liegen */}
+      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2">
         <AppLogo />
       </div>
     </header>
