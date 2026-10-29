@@ -44,6 +44,8 @@ export function TodoItem({
 
   function handleToggle() {
     if (todo.erledigt) {
+      // Zurücknehmen: auch den lokalen Häkchen-Zustand löschen, sonst bleibt es abgehakt
+      setJustChecked(false)
       todoActions.toggle(todo.id)
       return
     }
