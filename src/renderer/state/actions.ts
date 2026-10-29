@@ -1,6 +1,6 @@
 import * as core from '@core/index'
-import type { Priority } from '@shared/types'
-import { updateData } from './appStore'
+import type { CategoryColor, Priority } from '@shared/types'
+import { getData, updateData } from './appStore'
 
 // Alles, was die UI "tun" kann. Jede Aktion ruft genau eine reine Funktion aus
 // @core auf – die Komponenten müssen weder AppData noch core kennen.
@@ -22,6 +22,9 @@ export const todoActions = {
   removeSubtask: (todoId: string, subtaskId: string) =>
     updateData((d) => core.deleteSubtask(d, todoId, subtaskId)),
 
+  move: (todoId: string, categoryId: string) =>
+    updateData((d) => core.moveTodoToCategory(d, todoId, categoryId)),
+
   link: (todoId: string, deadlineId: string) =>
     updateData((d) => core.linkTodo(d, todoId, deadlineId)),
   unlink: (todoId: string) => updateData((d) => core.unlinkTodo(d, todoId))
@@ -33,4 +36,18 @@ export const deadlineActions = {
     updateData((d) => core.updateDeadline(d, id, patch)),
   toggle: (id: string) => updateData((d) => core.toggleDeadline(d, id)),
   remove: (id: string) => updateData((d) => core.deleteDeadline(d, id))
+}
+
+export const categoryActions = {
+  /** Legt an und gibt die neue ID zurück (oder null, wenn der Name ungültig/vergeben ist) */
+  add: (name: string, farbe?: CategoryColor): string | null => {
+    const before = new Set(getData().categories.map((c) => c.id))
+    updateData((d) => core.createCategory(d, { name, farbe }))
+    return getData().categories.find((c) => !before.has(c.id))?.id ?? null
+  },
+  rename: (id: string, name: string) => updateData((d) => core.renameCategory(d, id, name)),
+  setColor: (id: string, farbe: CategoryColor) =>
+    updateData((d) => core.setCategoryColor(d, id, farbe)),
+  remove: (id: string, strategie: core.DeleteStrategy) =>
+    updateData((d) => core.deleteCategory(d, id, strategie))
 }

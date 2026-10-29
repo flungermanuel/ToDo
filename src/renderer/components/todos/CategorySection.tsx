@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { ChevronRight } from 'lucide-react'
 import type { CategoryGroup, DeadlineView } from '@core/index'
+import type { Category } from '@shared/types'
 import { CATEGORY_COLOR_META } from '@renderer/lib/categoryColors'
 import { cn } from '@renderer/lib/utils'
 import { TodoItem } from './TodoItem'
@@ -12,6 +13,7 @@ interface CategorySectionProps {
   onToggle: () => void
   deadlines: DeadlineView[]
   todoTitles: Map<string, string>
+  categories: Category[]
   /** Platz für Aktionen rechts in der Überschrift (z. B. Menü) */
   actions?: ReactNode
 }
@@ -24,6 +26,7 @@ export function CategorySection({
   onToggle,
   deadlines,
   todoTitles,
+  categories,
   actions
 }: CategorySectionProps) {
   const { category, offen, erledigt } = group
@@ -76,6 +79,7 @@ export function CategorySection({
                     todo={todo}
                     deadlines={deadlines}
                     todoTitles={todoTitles}
+                    categories={categories}
                   />
                 ))}
               </AnimatePresence>

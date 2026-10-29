@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { CalendarClock, ChevronRight, ListTree, Trash2 } from 'lucide-react'
 import { subtaskProgress, type DeadlineView } from '@core/index'
-import type { Todo } from '@shared/types'
+import type { Category, Todo } from '@shared/types'
 import { todoActions } from '@renderer/state/actions'
 import { relativeDays } from '@renderer/lib/dates'
 import { cn } from '@renderer/lib/utils'
@@ -11,6 +11,7 @@ import { EditableText } from '@renderer/components/ui/EditableText'
 import { IconButton } from '@renderer/components/ui/IconButton'
 import { PriorityPicker } from '@renderer/components/ui/PriorityPicker'
 import { DeadlineLinkMenu } from './DeadlineLinkMenu'
+import { MoveToCategoryMenu } from './MoveToCategoryMenu'
 import { SubtaskList } from './SubtaskList'
 
 interface TodoItemProps {
@@ -18,12 +19,13 @@ interface TodoItemProps {
   /** Alle Deadlines (für das Verknüpfungs-Menü) */
   deadlines: DeadlineView[]
   todoTitles: Map<string, string>
+  categories: Category[]
 }
 
 // So lange bleibt ein frisch abgehaktes Todo stehen, bevor es zu "Erledigt" wandert
 const DONE_DELAY_MS = 450
 
-export function TodoItem({ todo, deadlines, todoTitles }: TodoItemProps) {
+export function TodoItem({ todo, deadlines, todoTitles, categories }: TodoItemProps) {
   const [justChecked, setJustChecked] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const checked = todo.erledigt || justChecked
@@ -44,15 +46,13 @@ export function TodoItem({ todo, deadlines, todoTitles }: TodoItemProps) {
     <motion.li
       layout
       initial={{ opacity: 0, y: -4 }}
-      animate={{ opacity: 1, y: 0 }}
+      // Erledigte stehen ausgegraut am Ende ihrer Kategorie. Die Deckkraft steuert Motion
+      // (nicht CSS), weil Motion sie sonst beim Einblenden als Inline-Style überschreibt.
+      animate={{ opacity: todo.erledigt ? 0.55 : 1, y: 0 }}
+      whileHover={todo.erledigt ? { opacity: 1 } : undefined}
       exit={{ opacity: 0, x: -12, transition: { duration: 0.15 } }}
       transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-      className={cn(
-        'rounded-lg transition-opacity',
-        expanded && 'bg-hover',
-        // Erledigte stehen ausgegraut am Ende ihrer Kategorie
-        todo.erledigt && 'opacity-55 hover:opacity-100'
-      )}
+      className={cn('rounded-lg', expanded && 'bg-hover')}
     >
       <div
         className={cn(
@@ -102,6 +102,7 @@ export function TodoItem({ todo, deadlines, todoTitles }: TodoItemProps) {
         </IconButton>
 
         <DeadlineLinkMenu todo={todo} deadlines={deadlines} todoTitles={todoTitles} />
+        {categories.length > 1 && <MoveToCategoryMenu todo={todo} categories={categories} />}
 
         <PriorityPicker
           value={todo.prioritaet}

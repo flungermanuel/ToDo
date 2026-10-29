@@ -33,6 +33,11 @@ export async function loadData(): Promise<void> {
   }
 }
 
+/** Aktueller Stand – für Aktionen, die nach einer Änderung etwas nachschlagen müssen */
+export function getData(): AppData {
+  return snapshot.data
+}
+
 /** Wendet eine (reine) Änderung an und plant das Speichern ein. */
 export function updateData(change: (data: AppData) => AppData): void {
   // Nicht speichern, solange nicht geladen ist – sonst überschreiben wir echte Daten mit leeren

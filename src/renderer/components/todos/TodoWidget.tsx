@@ -1,10 +1,12 @@
 import { deadlineViews, groupTodosByCategory } from '@core/index'
 import type { AppData } from '@shared/types'
-import { todoActions } from '@renderer/state/actions'
+import { categoryActions, todoActions } from '@renderer/state/actions'
 import { useCollapsedCategories } from '@renderer/state/useCollapsedCategories'
+import { useLastCategory } from '@renderer/state/useLastCategory'
 import { useToday } from '@renderer/lib/dates'
 import { Widget } from '@renderer/components/Widget'
 import { AddRow } from '@renderer/components/ui/AddRow'
+import { CategoryChips } from './CategoryChips'
 import { CategorySection } from './CategorySection'
 
 interface TodoWidgetProps {
@@ -18,10 +20,23 @@ export function TodoWidget({ data }: TodoWidgetProps) {
   const groups = groupTodosByCategory(data)
   const offen = groups.reduce((sum, g) => sum + g.offen.length, 0)
   const collapsed = useCollapsedCategories()
+  const [categoryId, setCategoryId] = useLastCategory(data.categories)
+
+  function addTodo(titel: string) {
+    todoActions.add({ titel, categoryId })
+    // Damit man das neue Todo auch sieht
+    collapsed.expand(categoryId)
+  }
 
   return (
     <Widget title="Todos" meta={offen > 0 ? `${offen} offen` : undefined}>
-      <AddRow placeholder="Neues Todo" onAdd={(titel) => todoActions.add({ titel })} autoFocus />
+      <AddRow placeholder="Neues Todo" onAdd={addTodo} autoFocus />
+      <CategoryChips
+        categories={data.categories}
+        value={categoryId}
+        onChange={setCategoryId}
+        onCreate={(name) => categoryActions.add(name)}
+      />
 
       {data.todos.length === 0 && (
         <p className="px-3 pt-1 pb-3 text-xs text-fg-subtle">
@@ -40,6 +55,7 @@ export function TodoWidget({ data }: TodoWidgetProps) {
               onToggle={() => collapsed.toggle(group.category.id, isCollapsed)}
               deadlines={deadlines}
               todoTitles={todoTitles}
+              categories={data.categories}
             />
           )
         })}
