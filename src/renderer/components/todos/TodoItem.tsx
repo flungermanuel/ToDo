@@ -47,7 +47,12 @@ export function TodoItem({ todo, deadlines, todoTitles }: TodoItemProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -12, transition: { duration: 0.15 } }}
       transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-      className={cn('rounded-lg', expanded && 'bg-hover')}
+      className={cn(
+        'rounded-lg transition-opacity',
+        expanded && 'bg-hover',
+        // Erledigte stehen ausgegraut am Ende ihrer Kategorie
+        todo.erledigt && 'opacity-55 hover:opacity-100'
+      )}
     >
       <div
         className={cn(

@@ -19,6 +19,14 @@
   --danger: #ff3b30;
   --success: #34c759;
   --warning: #ff9500;
+  /* Kategorie-Farben (macOS-Systemfarben) */
+  --cat-red: #ff3b30;
+  --cat-orange: #ff9500;
+  --cat-yellow: #ffcc00;
+  --cat-green: #34c759;
+  --cat-blue: #007aff;
+  --cat-purple: #af52de;
+  --cat-gray: #8e8e93;
   --shadow-card:
     0 0 0 1px rgb(0 0 0 / 0.04), 0 1px 2px rgb(0 0 0 / 0.04), 0 6px 20px rgb(0 0 0 / 0.05);
 
@@ -39,6 +47,13 @@
     --danger: #ff453a;
     --success: #30d158;
     --warning: #ff9f0a;
+    --cat-red: #ff453a;
+    --cat-orange: #ff9f0a;
+    --cat-yellow: #ffd60a;
+    --cat-green: #30d158;
+    --cat-blue: #0a84ff;
+    --cat-purple: #bf5af2;
+    --cat-gray: #98989d;
     --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.05), 0 6px 20px rgb(0 0 0 / 0.3);
 
     color-scheme: dark;
