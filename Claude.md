@@ -89,6 +89,10 @@ Priorität: am Todo sichtbar.
   Klick auf einen Tag öffnet links die Tagesansicht
 - Kategorie-Chips mit Abstand zur Eingabezeile, schmale Scrollbalken
 
+## V1.2.1 (Tag v1.2.1)
+- Bugfix: Erledigte Todos lassen sich durch erneutes Klicken auf das Häkchen
+  wieder zurücknehmen (lokaler Häkchen-Zustand wurde nicht zurückgesetzt)
+
 ## Design
 - Systemschrift (-apple-system, "Segoe UI"), viel Weißraum, 12 px Eckenradius, dezente Schatten
 - Eigene schlanke Titelleiste, keine Standard-Windows-Optik
