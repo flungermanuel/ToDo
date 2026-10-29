@@ -4,8 +4,11 @@ import type { IsoDate } from '@shared/types'
 import { cn } from '@renderer/lib/utils'
 
 interface DatePillProps {
-  value: IsoDate
+  /** undefined = noch kein Datum */
+  value: IsoDate | undefined
   onChange: (value: IsoDate) => void
+  /** "Löschen" in der Datumsauswahl – ohne diese Funktion lässt sich das Datum nicht entfernen */
+  onClear?: () => void
   /** Was im Knopf steht – Standard: Kalendersymbol + Datum */
   children?: ReactNode
   className?: string
@@ -14,7 +17,14 @@ interface DatePillProps {
 
 // Kompakter Datums-Knopf. Öffnet die eingebaute Datumsauswahl von Chromium,
 // ohne das hässliche Standard-Eingabefeld zu zeigen.
-export function DatePill({ value, onChange, children, className, label = 'Datum' }: DatePillProps) {
+export function DatePill({
+  value,
+  onChange,
+  onClear,
+  children,
+  className,
+  label = 'Datum'
+}: DatePillProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   return (
@@ -40,9 +50,10 @@ export function DatePill({ value, onChange, children, className, label = 'Datum'
         type="date"
         tabIndex={-1}
         aria-hidden
-        value={value}
+        value={value ?? ''}
         onChange={(e) => {
           if (e.target.value) onChange(e.target.value)
+          else onClear?.()
         }}
         // Unsichtbar, dient nur als Anker für die Datumsauswahl
         className="pointer-events-none absolute inset-0 opacity-0"

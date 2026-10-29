@@ -1,5 +1,5 @@
 import * as core from '@core/index'
-import type { CategoryColor, Priority } from '@shared/types'
+import type { CategoryColor, IsoDate, Priority } from '@shared/types'
 import { getData, updateData } from './appStore'
 
 // Alles, was die UI "tun" kann. Jede Aktion ruft genau eine reine Funktion aus
@@ -22,6 +22,8 @@ export const todoActions = {
   removeSubtask: (todoId: string, subtaskId: string) =>
     updateData((d) => core.deleteSubtask(d, todoId, subtaskId)),
 
+  setDate: (id: string, datum: IsoDate | undefined) =>
+    updateData((d) => core.setTodoDate(d, id, datum)),
   move: (todoId: string, categoryId: string) =>
     updateData((d) => core.moveTodoToCategory(d, todoId, categoryId)),
 

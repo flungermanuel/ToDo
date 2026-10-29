@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { toIsoDate } from '@core/index'
+import { daysBetween, toIsoDate } from '@core/index'
 import type { IsoDate } from '@shared/types'
 
 // Datums-Anzeige auf Deutsch – Präsentation, deshalb im Renderer.
@@ -10,6 +10,15 @@ export function relativeDays(tageBis: number): string {
   if (tageBis === 1) return 'Morgen'
   if (tageBis === -1) return 'Gestern'
   return tageBis > 0 ? `in ${tageBis} Tagen` : `vor ${-tageBis} Tagen`
+}
+
+/** "Heute", "Morgen", "Gestern", sonst "Do., 5. Nov." */
+export function dayLabel(date: IsoDate, today: IsoDate): string {
+  const diff = daysBetween(today, date)
+  if (diff === 0) return 'Heute'
+  if (diff === 1) return 'Morgen'
+  if (diff === -1) return 'Gestern'
+  return formatShortDate(date)
 }
 
 const shortFormat = new Intl.DateTimeFormat('de-DE', {

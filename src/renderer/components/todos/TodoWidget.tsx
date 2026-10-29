@@ -1,11 +1,14 @@
+import { useState } from 'react'
+import { CalendarDays } from 'lucide-react'
 import { deadlineViews, groupTodosByCategory } from '@core/index'
 import type { AppData } from '@shared/types'
 import { categoryActions, todoActions } from '@renderer/state/actions'
 import { useCollapsedCategories } from '@renderer/state/useCollapsedCategories'
 import { useLastCategory } from '@renderer/state/useLastCategory'
-import { useToday } from '@renderer/lib/dates'
+import { dayLabel, useToday } from '@renderer/lib/dates'
 import { Widget } from '@renderer/components/Widget'
 import { AddRow } from '@renderer/components/ui/AddRow'
+import { DatePill } from '@renderer/components/ui/DatePill'
 import { CategoryChips } from './CategoryChips'
 import { CategorySection } from './CategorySection'
 
@@ -21,16 +24,25 @@ export function TodoWidget({ data }: TodoWidgetProps) {
   const offen = groups.reduce((sum, g) => sum + g.offen.length, 0)
   const collapsed = useCollapsedCategories()
   const [categoryId, setCategoryId] = useLastCategory(data.categories)
+  // Datum für das nächste neue Todo – Standard ist der angezeigte Tag
+  const [newDate, setNewDate] = useState<string | null>(null)
+  const datum = newDate ?? today
 
   function addTodo(titel: string) {
-    todoActions.add({ titel, categoryId })
+    todoActions.add({ titel, categoryId, datum })
+    setNewDate(null)
     // Damit man das neue Todo auch sieht
     collapsed.expand(categoryId)
   }
 
   return (
     <Widget title="Todos" meta={offen > 0 ? `${offen} offen` : undefined}>
-      <AddRow placeholder="Neues Todo" onAdd={addTodo} autoFocus />
+      <AddRow placeholder="Neues Todo" onAdd={addTodo} autoFocus>
+        <DatePill value={datum} onChange={setNewDate} label="Datum für neues Todo">
+          <CalendarDays className="size-3.5" />
+          <span className="tabular-nums">{dayLabel(datum, today)}</span>
+        </DatePill>
+      </AddRow>
       <CategoryChips
         categories={data.categories}
         value={categoryId}

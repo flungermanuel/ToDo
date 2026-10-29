@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { CalendarClock, ChevronRight, ListTree, Trash2 } from 'lucide-react'
+import { CalendarClock, CalendarDays, ChevronRight, ListTree, Trash2 } from 'lucide-react'
 import { subtaskProgress, type DeadlineView } from '@core/index'
-import type { Category, Todo } from '@shared/types'
+import type { Category, IsoDate, Todo } from '@shared/types'
 import { todoActions } from '@renderer/state/actions'
-import { relativeDays } from '@renderer/lib/dates'
+import { dayLabel, relativeDays, useToday } from '@renderer/lib/dates'
 import { cn } from '@renderer/lib/utils'
 import { Checkbox } from '@renderer/components/ui/Checkbox'
+import { DatePill } from '@renderer/components/ui/DatePill'
 import { EditableText } from '@renderer/components/ui/EditableText'
 import { IconButton } from '@renderer/components/ui/IconButton'
 import { PriorityPicker } from '@renderer/components/ui/PriorityPicker'
@@ -20,17 +21,22 @@ interface TodoItemProps {
   deadlines: DeadlineView[]
   todoTitles: Map<string, string>
   categories: Category[]
+  /** Der Tag, der gerade angezeigt wird – dann muss das Datum nicht extra am Todo stehen */
+  contextDay?: IsoDate
 }
 
 // So lange bleibt ein frisch abgehaktes Todo stehen, bevor es zu "Erledigt" wandert
 const DONE_DELAY_MS = 450
 
-export function TodoItem({ todo, deadlines, todoTitles, categories }: TodoItemProps) {
+export function TodoItem({ todo, deadlines, todoTitles, categories, contextDay }: TodoItemProps) {
+  const today = useToday()
   const [justChecked, setJustChecked] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const checked = todo.erledigt || justChecked
   const progress = subtaskProgress(todo)
   const linked = deadlines.find((v) => v.deadline.id === todo.deadlineId)
+  const showDate = todo.datum !== undefined && todo.datum !== contextDay
+  const overdue = !todo.erledigt && todo.datum !== undefined && todo.datum < today
 
   function handleToggle() {
     if (todo.erledigt) {
@@ -72,8 +78,19 @@ export function TodoItem({ todo, deadlines, todoTitles, categories }: TodoItemPr
               checked && 'text-fg-muted line-through decoration-fg-subtle'
             )}
           />
-          {(progress.gesamt > 0 || linked) && (
+          {(progress.gesamt > 0 || linked || showDate) && (
             <div className="mt-0.5 flex min-w-0 items-center gap-2 text-[11px]">
+              {showDate && (
+                <span
+                  className={cn(
+                    'flex shrink-0 items-center gap-1 text-fg-muted',
+                    overdue && 'font-medium text-danger'
+                  )}
+                >
+                  <CalendarDays className="size-3" />
+                  {dayLabel(todo.datum!, today)}
+                </span>
+              )}
               {linked && <LinkedDeadline view={linked} />}
               {progress.gesamt > 0 && (
                 <button
@@ -100,6 +117,16 @@ export function TodoItem({ todo, deadlines, todoTitles, categories }: TodoItemPr
             <ListTree />
           )}
         </IconButton>
+
+        <DatePill
+          value={todo.datum}
+          onChange={(datum) => todoActions.setDate(todo.id, datum)}
+          onClear={() => todoActions.setDate(todo.id, undefined)}
+          label="Datum"
+          className="size-6 justify-center p-0 text-fg-subtle opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+        >
+          <CalendarDays className="size-3.5" />
+        </DatePill>
 
         <DeadlineLinkMenu todo={todo} deadlines={deadlines} todoTitles={todoTitles} />
         {categories.length > 1 && <MoveToCategoryMenu todo={todo} categories={categories} />}
