@@ -2,13 +2,23 @@ import { join } from 'node:path'
 import { app, BrowserWindow, nativeTheme } from 'electron'
 import { registerIpcHandlers } from './ipc'
 import { JsonStorage } from './storage/JsonStorage'
+import { adoptLegacyFile } from './storage/legacy'
 import type { Storage } from './storage/Storage'
 
 // Muss zu --bg in globals.css passen, sonst blitzt beim Start kurz eine andere Farbe auf.
 const BACKGROUND = { light: '#f5f5f7', dark: '#1c1c1e' }
 
+const APP_NAME = 'FlungDo'
+const DATA_FILE = 'todo-data.json'
+
+// Daten-Ordner fest auf %APPDATA%/FlungDo setzen – unabhängig davon, wie Electron
+// den Namen gerade ableitet (Dev-Modus vs. gebaute .exe).
+app.setName(APP_NAME)
+app.setPath('userData', join(app.getPath('appData'), APP_NAME))
+
 function createWindow(): void {
   const win = new BrowserWindow({
+    title: APP_NAME,
     width: 1100,
     height: 720,
     minWidth: 760,
@@ -40,8 +50,12 @@ function createWindow(): void {
 // Hier wird entschieden, welche Speicherung die App nutzt – später z. B. SqliteStorage.
 let storage: Storage | undefined
 
-app.whenReady().then(() => {
-  storage = new JsonStorage(join(app.getPath('userData'), 'todo-data.json'))
+app.whenReady().then(async () => {
+  const dataPath = join(app.getPath('userData'), DATA_FILE)
+  // Daten aus der Zeit vor der Umbenennung (Ordner "todo") übernehmen
+  await adoptLegacyFile(join(app.getPath('appData'), 'todo', DATA_FILE), dataPath)
+
+  storage = new JsonStorage(dataPath)
   registerIpcHandlers(storage)
   createWindow()
 

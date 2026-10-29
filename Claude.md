@@ -1,13 +1,13 @@
-# Todo-App
+# FlungDo
 
-Cleane Desktop-Todo-App für Windows mit moderner, an macOS orientierter Optik.
+FlungDo: cleane Desktop-Todo-App für Windows mit moderner, an macOS orientierter Optik.
 Persönliches Lernprojekt: Fokus auf saubere Architektur und nachvollziehbaren Code.
 
 ## Tech-Stack
 - Electron (Desktop-Hülle, Build mit electron-builder zur .exe)
 - React + Vite + TypeScript
 - Tailwind CSS, shadcn/ui, Lucide Icons, Framer Motion
-- Speicherung: JSON-Datei im Nutzerordner (app.getPath("userData"))
+- Speicherung: JSON-Datei in %APPDATA%/FlungDo/todo-data.json (bis V1: %APPDATA%/todo, wird beim Start übernommen)
 - Kein Backend, keine Datenbank, keine KI in V1
 
 ## Architektur (strikt einhalten)

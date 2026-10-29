@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
-import { Minus, Plus, X } from 'lucide-react'
+import { Check, Minus, Plus, X } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 
 // Schlanke Titelleiste im macOS-Stil: Ampel-Knöpfe links, Titel mittig.
@@ -36,10 +36,24 @@ export function TitleBar() {
         </TrafficLight>
       </div>
 
-      <h1 className="pointer-events-none absolute inset-x-0 text-center text-[13px] font-semibold text-fg-muted">
-        Todo
-      </h1>
+      <div className="pointer-events-none absolute inset-x-0 flex justify-center">
+        <AppLogo />
+      </div>
     </header>
+  )
+}
+
+// App-Name als kleines "Logo": Kapsel mit feinem Rand, im Stil der Karten.
+function AppLogo() {
+  return (
+    <h1 className="flex items-center gap-1.5 rounded-full border border-separator bg-surface py-0.5 pr-3 pl-1 shadow-[0_1px_2px_rgb(0_0_0/0.04)]">
+      <span className="flex size-[18px] items-center justify-center rounded-full bg-accent text-white">
+        <Check className="size-3" strokeWidth={3.5} />
+      </span>
+      <span className="text-[13px] font-semibold tracking-tight">
+        Flung<span className="text-accent">Do</span>
+      </span>
+    </h1>
   )
 }
 
