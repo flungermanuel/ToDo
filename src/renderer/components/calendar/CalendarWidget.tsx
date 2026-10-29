@@ -11,8 +11,8 @@ import {
   type DayMarker
 } from '@core/index'
 import type { AppData, IsoDate } from '@shared/types'
-import { useView } from '@renderer/state/viewStore'
-import { toLocalDate, useToday } from '@renderer/lib/dates'
+import { useView, viewActions } from '@renderer/state/viewStore'
+import { formatLongDate, toLocalDate, useToday } from '@renderer/lib/dates'
 import { cn } from '@renderer/lib/utils'
 import { Widget } from '@renderer/components/Widget'
 import { Segmented } from '@renderer/components/ui/Segmented'
@@ -33,6 +33,7 @@ interface CalendarWidgetProps {
 
 // Kleiner Kalender unter den Deadlines. Pro Tag ganz dezent:
 // · = offene Todos, ! = Deadline (rot überfällig, orange offen, gedimmt erledigt).
+// Klick auf einen Tag → links die Tagesansicht dieses Tages.
 export function CalendarWidget({ data }: CalendarWidgetProps) {
   const today = useToday()
   const view = useView()
@@ -100,14 +101,22 @@ export function CalendarWidget({ data }: CalendarWidgetProps) {
         </div>
 
         {rows.map((week) => (
-          <div key={week[0]} className="grid grid-cols-7" role="row">
+          <div
+            key={week[0]}
+            role="row"
+            className={cn(
+              'grid grid-cols-7 rounded-lg',
+              // Links ist die Wochenansicht offen → diese Woche leicht hinterlegen
+              view.mode === 'woche' && week.includes(view.day) && 'bg-active'
+            )}
+          >
             {week.map((day) => (
               <DayCell
                 key={day}
                 day={day}
                 marker={markers.get(day)!}
                 today={today}
-                selected={day === view.day}
+                selected={view.mode === 'tag' && day === view.day}
                 outside={mode === 'monat' && day.slice(0, 7) !== month}
               />
             ))}
@@ -132,7 +141,14 @@ function DayCell({ day, marker, today, selected, outside }: DayCellProps) {
   const weekend = isWeekend(day)
 
   return (
-    <div role="gridcell" className="flex flex-col items-center">
+    <button
+      type="button"
+      role="gridcell"
+      aria-selected={selected}
+      aria-label={`${formatLongDate(day)}${describe(marker) ? ` – ${describe(marker)}` : ''}`}
+      onClick={() => viewActions.openDay(day)}
+      className="group/cell flex flex-col items-center rounded-md py-0.5 outline-none"
+    >
       <span
         className={cn(
           'flex size-6 items-center justify-center rounded-full text-xs tabular-nums',
@@ -143,7 +159,9 @@ function DayCell({ day, marker, today, selected, outside }: DayCellProps) {
               : weekend
                 ? 'text-weekend-fg'
                 : 'text-fg',
-          outside && !selected && 'opacity-35'
+          outside && !selected && 'opacity-35',
+          !selected &&
+            'group-hover/cell:bg-hover group-focus-visible/cell:ring-2 group-focus-visible/cell:ring-accent/50'
         )}
         aria-current={isToday ? 'date' : undefined}
       >
@@ -165,8 +183,7 @@ function DayCell({ day, marker, today, selected, outside }: DayCellProps) {
           </span>
         )}
       </span>
-      <span className="sr-only">{describe(marker)}</span>
-    </div>
+    </button>
   )
 }
 
