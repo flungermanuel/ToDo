@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, daysBetween, isValidIsoDate, toIsoDate } from '../dates'
+import { addDays, addMonths, daysBetween, isValidIsoDate, toIsoDate } from '../dates'
 
 describe('toIsoDate', () => {
   it('nutzt den lokalen Kalendertag und füllt mit Nullen auf', () => {
@@ -37,5 +37,14 @@ describe('addDays', () => {
   it('rechnet über Monatsgrenzen', () => {
     expect(addDays('2026-10-30', 3)).toBe('2026-11-02')
     expect(addDays('2026-03-01', -1)).toBe('2026-02-28')
+  })
+})
+
+describe('addMonths', () => {
+  it('liefert den Monatsersten, auch über Jahresgrenzen', () => {
+    expect(addMonths('2026-10-29', 1)).toBe('2026-11-01')
+    expect(addMonths('2026-12-15', 1)).toBe('2027-01-01')
+    expect(addMonths('2026-01-31', -1)).toBe('2025-12-01')
+    expect(addMonths('2026-10-29', -22)).toBe('2024-12-01')
   })
 })

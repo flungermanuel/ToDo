@@ -22,6 +22,7 @@ export function DeadlineWidget({ data }: DeadlineWidgetProps) {
 
   return (
     <Widget
+      className="flex-1"
       title="Deadlines"
       meta={overdue > 0 ? <span className="text-danger">{overdue} überfällig</span> : undefined}
     >

@@ -32,6 +32,14 @@ export function addDays(date: IsoDate, days: number): IsoDate {
   return d.toISOString().slice(0, 10)
 }
 
+/** Erster Tag des Monats, `months` Monate vor (+) oder zurück (−) */
+export function addMonths(date: IsoDate, months: number): IsoDate {
+  const index = Number(date.slice(0, 4)) * 12 + Number(date.slice(5, 7)) - 1 + months
+  const year = Math.floor(index / 12)
+  const month = (index % 12) + 1
+  return `${year}-${String(month).padStart(2, '0')}-01`
+}
+
 function toUtcMs(date: IsoDate): number {
   const [y, m, d] = date.split('-').map(Number) as [number, number, number]
   return Date.UTC(y, m - 1, d)
