@@ -35,7 +35,12 @@ export function CategoryChips({ categories, value, onChange, onCreate }: Categor
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 px-3 pb-2 pl-[42px]" role="radiogroup">
+    <div
+      // Eigene Zeile mit Abstand – gehört zur Eingabe, liegt aber nicht in ihrer Hover-Fläche
+      className="mt-1 mb-4 flex flex-wrap items-center gap-1.5 px-3 pl-[42px]"
+      role="radiogroup"
+      aria-label="Kategorie für neues Todo"
+    >
       {categories.map((c) => {
         const selected = c.id === value
         return (
