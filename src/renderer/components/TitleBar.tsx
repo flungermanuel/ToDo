@@ -1,10 +1,15 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
-import { Check, Minus, Plus, X } from 'lucide-react'
+import { Check, Menu, Minus, Plus, X } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 
-// Schlanke Titelleiste im macOS-Stil: Ampel-Knöpfe links, Titel mittig.
+interface TitleBarProps {
+  sidebarOpen: boolean
+  onToggleSidebar: () => void
+}
+
+// Schlanke Titelleiste im macOS-Stil: Ampel-Knöpfe und Menü links, Logo mittig.
 // Die ganze Leiste ist Zieh-Fläche, nur die Knöpfe nicht.
-export function TitleBar() {
+export function TitleBar({ sidebarOpen, onToggleSidebar }: TitleBarProps) {
   const focused = useWindowFocus()
 
   return (
@@ -35,6 +40,20 @@ export function TitleBar() {
           <Plus strokeWidth={3} />
         </TrafficLight>
       </div>
+
+      <button
+        type="button"
+        onClick={onToggleSidebar}
+        aria-label={sidebarOpen ? 'Seitenleiste schließen' : 'Seitenleiste öffnen'}
+        aria-expanded={sidebarOpen}
+        title={sidebarOpen ? 'Seitenleiste schließen' : 'Seitenleiste öffnen'}
+        className={cn(
+          'app-no-drag ml-4 flex size-7 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-active hover:text-fg',
+          sidebarOpen && 'bg-active text-fg'
+        )}
+      >
+        <Menu className="size-4" />
+      </button>
 
       <div className="pointer-events-none absolute inset-x-0 flex justify-center">
         <AppLogo />

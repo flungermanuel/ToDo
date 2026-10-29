@@ -4,7 +4,8 @@ import { cn } from '@renderer/lib/utils'
 
 interface AddRowProps {
   placeholder: string
-  onAdd: (titel: string) => void
+  /** Gibt `false` zurück, wenn es nicht geklappt hat – dann bleibt der Text stehen */
+  onAdd: (titel: string) => boolean | void
   /** Zusätzliche Felder rechts neben dem Titel (z. B. Datum) */
   children?: ReactNode
   /** Darf abgeschickt werden? Standard: Titel nicht leer */
@@ -23,11 +24,15 @@ export function AddRow({
   autoFocus
 }: AddRowProps) {
   const [titel, setTitel] = useState('')
+  const [rejected, setRejected] = useState(false)
   const ready = titel.trim().length > 0 && canSubmit
 
   function submit() {
     if (!ready) return
-    onAdd(titel)
+    if (onAdd(titel) === false) {
+      setRejected(true)
+      return
+    }
     setTitel('')
   }
 
@@ -39,13 +44,17 @@ export function AddRow({
       }}
       className={cn(
         'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors focus-within:bg-hover',
+        rejected && 'ring-1 ring-danger',
         className
       )}
     >
       <Plus className="size-[18px] shrink-0 text-fg-subtle" strokeWidth={2} />
       <input
         value={titel}
-        onChange={(e) => setTitel(e.target.value)}
+        onChange={(e) => {
+          setTitel(e.target.value)
+          setRejected(false)
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Escape') setTitel('')
         }}
