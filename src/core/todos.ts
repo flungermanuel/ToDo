@@ -77,6 +77,18 @@ export function toggleTodo(data: AppData, id: string): AppData {
   return mapTodo(data, id, (todo) => ({ ...todo, erledigt: !todo.erledigt }))
 }
 
+/** Datum setzen oder mit `undefined` entfernen. Ungültige Daten ändern nichts. */
+export function setTodoDate(data: AppData, id: string, datum: IsoDate | undefined): AppData {
+  if (datum !== undefined && !isValidIsoDate(datum)) return data
+  return mapTodo(data, id, (todo) => {
+    if (datum === undefined) {
+      const { datum: _removed, ...rest } = todo
+      return rest
+    }
+    return { ...todo, datum }
+  })
+}
+
 export function deleteTodo(data: AppData, id: string): AppData {
   // Eine verknüpfte Deadline bleibt bestehen – sie gehört nicht dem Todo.
   return { ...data, todos: data.todos.filter((t) => t.id !== id) }
