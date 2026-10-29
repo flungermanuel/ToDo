@@ -21,8 +21,8 @@ export function App() {
       ) : (
         // Während des Ladens (Sekundenbruchteile) bleibt die Fläche leer statt zu flackern
         status === 'ready' && (
-          <main className="grid min-h-0 flex-1 grid-cols-[3fr_2fr] gap-4 px-4 pb-4">
-            <TodoWidget todos={data.todos} />
+          <main className="grid min-h-0 flex-1 grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-4 px-4 pb-4">
+            <TodoWidget data={data} />
             <DeadlineWidget data={data} />
           </main>
         )

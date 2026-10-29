@@ -1,22 +1,26 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'motion/react'
 import { ChevronRight } from 'lucide-react'
-import { sortTodos } from '@core/index'
-import type { Todo } from '@shared/types'
+import { deadlineViews, sortTodos } from '@core/index'
+import type { AppData } from '@shared/types'
 import { todoActions } from '@renderer/state/actions'
+import { useToday } from '@renderer/lib/dates'
 import { cn } from '@renderer/lib/utils'
 import { Widget } from '@renderer/components/Widget'
 import { AddRow } from '@renderer/components/ui/AddRow'
 import { TodoItem } from './TodoItem'
 
 interface TodoWidgetProps {
-  todos: Todo[]
+  data: AppData
 }
 
-export function TodoWidget({ todos }: TodoWidgetProps) {
+export function TodoWidget({ data }: TodoWidgetProps) {
   const [showDone, setShowDone] = useState(false)
+  const today = useToday()
+  const deadlines = deadlineViews(data, today)
+  const todoTitles = new Map(data.todos.map((t) => [t.id, t.titel]))
 
-  const sorted = sortTodos(todos)
+  const sorted = sortTodos(data.todos)
   const open = sorted.filter((t) => !t.erledigt)
   const done = sorted.filter((t) => t.erledigt)
 
@@ -32,7 +36,7 @@ export function TodoWidget({ todos }: TodoWidgetProps) {
       <ul>
         <AnimatePresence initial={false}>
           {open.map((todo) => (
-            <TodoItem key={todo.id} todo={todo} />
+            <TodoItem key={todo.id} todo={todo} deadlines={deadlines} todoTitles={todoTitles} />
           ))}
         </AnimatePresence>
       </ul>
@@ -55,7 +59,12 @@ export function TodoWidget({ todos }: TodoWidgetProps) {
             <ul>
               <AnimatePresence initial={false}>
                 {done.map((todo) => (
-                  <TodoItem key={todo.id} todo={todo} />
+                  <TodoItem
+                    key={todo.id}
+                    todo={todo}
+                    deadlines={deadlines}
+                    todoTitles={todoTitles}
+                  />
                 ))}
               </AnimatePresence>
             </ul>

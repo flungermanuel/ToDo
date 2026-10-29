@@ -18,13 +18,13 @@ export function DatePill({ value, onChange, children, className, label = 'Datum'
   const inputRef = useRef<HTMLInputElement>(null)
 
   return (
-    <span className="relative inline-flex">
+    <span className="relative inline-flex shrink-0">
       <button
         type="button"
         aria-label={`${label} ändern`}
         onClick={() => inputRef.current?.showPicker()}
         className={cn(
-          'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-fg-muted hover:bg-active hover:text-fg',
+          'inline-flex items-center gap-1 rounded-md whitespace-nowrap px-1.5 py-0.5 text-xs text-fg-muted hover:bg-active hover:text-fg',
           className
         )}
       >

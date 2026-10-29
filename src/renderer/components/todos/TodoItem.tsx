@@ -1,28 +1,34 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ChevronRight, ListTree, Trash2 } from 'lucide-react'
-import { subtaskProgress } from '@core/index'
+import { CalendarClock, ChevronRight, ListTree, Trash2 } from 'lucide-react'
+import { subtaskProgress, type DeadlineView } from '@core/index'
 import type { Todo } from '@shared/types'
 import { todoActions } from '@renderer/state/actions'
+import { relativeDays } from '@renderer/lib/dates'
 import { cn } from '@renderer/lib/utils'
 import { Checkbox } from '@renderer/components/ui/Checkbox'
 import { EditableText } from '@renderer/components/ui/EditableText'
 import { IconButton } from '@renderer/components/ui/IconButton'
 import { PriorityPicker } from '@renderer/components/ui/PriorityPicker'
+import { DeadlineLinkMenu } from './DeadlineLinkMenu'
 import { SubtaskList } from './SubtaskList'
 
 interface TodoItemProps {
   todo: Todo
+  /** Alle Deadlines (für das Verknüpfungs-Menü) */
+  deadlines: DeadlineView[]
+  todoTitles: Map<string, string>
 }
 
 // So lange bleibt ein frisch abgehaktes Todo stehen, bevor es zu "Erledigt" wandert
 const DONE_DELAY_MS = 450
 
-export function TodoItem({ todo }: TodoItemProps) {
+export function TodoItem({ todo, deadlines, todoTitles }: TodoItemProps) {
   const [justChecked, setJustChecked] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const checked = todo.erledigt || justChecked
   const progress = subtaskProgress(todo)
+  const linked = deadlines.find((v) => v.deadline.id === todo.deadlineId)
 
   function handleToggle() {
     if (todo.erledigt) {
@@ -61,14 +67,19 @@ export function TodoItem({ todo }: TodoItemProps) {
               checked && 'text-fg-muted line-through decoration-fg-subtle'
             )}
           />
-          {progress.gesamt > 0 && (
-            <button
-              type="button"
-              onClick={() => setExpanded((v) => !v)}
-              className="mt-0.5 self-start text-[11px] text-fg-muted tabular-nums hover:text-fg"
-            >
-              {progress.erledigt}/{progress.gesamt} Unteraufgaben
-            </button>
+          {(progress.gesamt > 0 || linked) && (
+            <div className="mt-0.5 flex min-w-0 items-center gap-2 text-[11px]">
+              {linked && <LinkedDeadline view={linked} />}
+              {progress.gesamt > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setExpanded((v) => !v)}
+                  className="shrink-0 text-fg-muted tabular-nums hover:text-fg"
+                >
+                  {progress.erledigt}/{progress.gesamt} Unteraufgaben
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -84,6 +95,8 @@ export function TodoItem({ todo }: TodoItemProps) {
             <ListTree />
           )}
         </IconButton>
+
+        <DeadlineLinkMenu todo={todo} deadlines={deadlines} todoTitles={todoTitles} />
 
         <PriorityPicker
           value={todo.prioritaet}
@@ -115,5 +128,26 @@ export function TodoItem({ todo }: TodoItemProps) {
         )}
       </AnimatePresence>
     </motion.li>
+  )
+}
+
+// Kurzinfo zur verknüpften Deadline unter dem Todo-Titel
+function LinkedDeadline({ view }: { view: DeadlineView }) {
+  const heute = !view.erledigt && view.tageBis === 0
+  return (
+    <span
+      className={cn(
+        'flex min-w-0 items-center gap-1 text-fg-muted',
+        view.ueberfaellig && 'font-medium text-danger',
+        heute && 'font-medium text-warning'
+      )}
+      title={`Verknüpft mit Deadline „${view.deadline.titel}“`}
+    >
+      <CalendarClock className="size-3 shrink-0" />
+      <span className="truncate">{view.deadline.titel}</span>
+      <span className="shrink-0">
+        · {view.ueberfaellig ? 'Überfällig' : relativeDays(view.tageBis)}
+      </span>
+    </span>
   )
 }
