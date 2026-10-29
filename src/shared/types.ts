@@ -52,6 +52,8 @@ export interface Todo {
   prioritaet: Priority
   unteraufgaben: Subtask[]
   categoryId: string
+  /** Geplanter Tag. Fehlt er, zählt das Datum der verknüpften Deadline (sonst "ohne Datum"). */
+  datum?: IsoDate
   /** Optionale Verknüpfung: Todo abhaken → Deadline zeigt ✓ */
   deadlineId?: string
 }
@@ -65,8 +67,8 @@ export interface Deadline {
   prioritaet: Priority
 }
 
-/** Version 1: V1 ohne Kategorien · Version 2: mit Kategorien (V1.1) */
-export const CURRENT_VERSION = 2
+/** Version 1: V1 ohne Kategorien · 2: mit Kategorien (V1.1) · 3: Todos mit Datum (V1.2) */
+export const CURRENT_VERSION = 3
 
 export interface AppData {
   version: typeof CURRENT_VERSION

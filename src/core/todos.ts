@@ -1,5 +1,12 @@
-import { DEFAULT_PRIORITY, type AppData, type Priority, type Todo } from '@shared/types'
+import {
+  DEFAULT_PRIORITY,
+  type AppData,
+  type IsoDate,
+  type Priority,
+  type Todo
+} from '@shared/types'
 import { defaultContext, type CoreContext } from './context'
+import { isValidIsoDate } from './dates'
 import { cleanTitle } from './text'
 
 // Alle Funktionen sind rein: Sie bekommen AppData und geben neue AppData zurück,
@@ -11,6 +18,8 @@ export interface NewTodo {
   prioritaet?: Priority
   /** Fehlt sie oder existiert sie nicht, landet das Todo in der ersten Kategorie. */
   categoryId?: string
+  /** Geplanter Tag – ungültige Daten werden ignoriert */
+  datum?: IsoDate
   deadlineId?: string
 }
 
@@ -34,6 +43,7 @@ export function createTodo(
     unteraufgaben: [],
     categoryId
   }
+  if (input.datum && isValidIsoDate(input.datum)) todo.datum = input.datum
   if (input.deadlineId && data.deadlines.some((d) => d.id === input.deadlineId)) {
     todo.deadlineId = input.deadlineId
   }

@@ -7,7 +7,7 @@ import { JsonStorage } from '../JsonStorage'
 import { migrate, UnreadableDataError } from '../migrations'
 
 const sample: AppData = {
-  version: 2,
+  version: 3,
   categories: [
     { id: 'c1', name: 'Uni', farbe: 'purple' },
     { id: 'c2', name: 'Sport', farbe: 'green' }
@@ -22,6 +22,7 @@ const sample: AppData = {
       prioritaet: 3,
       unteraufgaben: [{ id: 's1', titel: 'Aufgabe 1', erledigt: true }],
       categoryId: 'c2',
+      datum: '2026-11-03',
       deadlineId: 'd1'
     }
   ]
@@ -59,7 +60,7 @@ describe('migrate', () => {
 
   it('migriert V1-Dateien: Startkategorien, alle Todos nach "Persönlich", nichts geht verloren', () => {
     const result = migrate(structuredClone(v1File))
-    expect(result.version).toBe(2)
+    expect(result.version).toBe(3)
     expect(result.categories.map((c) => c.name)).toEqual(['Studium', 'Persönlich'])
     expect(result.todos).toHaveLength(2)
     expect(result.todos.every((t) => t.categoryId === 'cat-persoenlich')).toBe(true)
@@ -81,6 +82,20 @@ describe('migrate', () => {
 
     const empty = migrate({ version: 2, categories: [], todos: [], deadlines: [] })
     expect(empty.categories.map((c) => c.name)).toEqual(['Studium', 'Persönlich'])
+  })
+
+  it('Version 2 → 3: Todos bleiben ohne Datum, ungültige Daten werden verworfen', () => {
+    const result = migrate({
+      version: 2,
+      categories: [{ id: 'c1', name: 'Uni', farbe: 'blue' }],
+      todos: [
+        { id: 't1', titel: 'Alt', categoryId: 'c1' },
+        { id: 't2', titel: 'Kaputt', categoryId: 'c1', datum: '29.10.2026' }
+      ],
+      deadlines: []
+    })
+    expect(result.version).toBe(3)
+    expect(result.todos.map((t) => t.datum)).toEqual([undefined, undefined])
   })
 
   it('lehnt fremde Formate und unbekannte Versionen ab', () => {

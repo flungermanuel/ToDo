@@ -37,6 +37,13 @@ describe('createTodo', () => {
     ])
   })
 
+  it('übernimmt ein gültiges Datum, ignoriert ungültige', () => {
+    const ctx = testContext()
+    let data = createTodo(emptyAppData(), { titel: 'A', datum: '2026-10-29' }, ctx)
+    data = createTodo(data, { titel: 'B', datum: '2026-02-30' }, ctx)
+    expect(data.todos.map((t) => t.datum)).toEqual(['2026-10-29', undefined])
+  })
+
   it('übernimmt eine gültige Kategorie, sonst die erste', () => {
     const ctx = testContext()
     let data = createTodo(emptyAppData(), { titel: 'A', categoryId: 'cat-persoenlich' }, ctx)
