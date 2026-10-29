@@ -1,0 +1,16 @@
+{
+  // Main-Prozess, Preload und die reine Logik (core/shared) – läuft in Node.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "outDir": "out/.tsc/node"
+  },
+  "include": [
+    "electron.vite.config.ts",
+    "src/main/**/*",
+    "src/preload/**/*",
+    "src/core/**/*",
+    "src/shared/**/*"
+  ]
+}
