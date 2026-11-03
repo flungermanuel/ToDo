@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { emptyAppData, type AppData } from '@shared/types'
+import { hideToast, showToast } from './toastStore'
 
 // Zentraler Zustand der UI. Hält die AppData, benachrichtigt React bei Änderungen
 // und speichert (leicht verzögert) über window.api. Logik steckt hier keine –
@@ -17,6 +18,8 @@ const SAVE_DELAY_MS = 200
 let snapshot: Snapshot = { data: emptyAppData(), status: 'loading' }
 const listeners = new Set<() => void>()
 let saveTimer: ReturnType<typeof setTimeout> | undefined
+// ID des Fehler-Hinweises, solange einer angezeigt wird
+let saveErrorToast: number | undefined
 
 function setSnapshot(next: Snapshot): void {
   snapshot = next
@@ -58,9 +61,26 @@ function flushSave(): void {
   if (saveTimer === undefined) return
   clearTimeout(saveTimer)
   saveTimer = undefined
-  window.api.data.save(snapshot.data).catch((error) => {
-    console.error('Speichern fehlgeschlagen:', error)
-  })
+  save()
+}
+
+function save(): void {
+  window.api.data.save(snapshot.data).then(
+    () => {
+      // Hat es nach einem Fehler wieder geklappt, verschwindet der Hinweis
+      if (saveErrorToast !== undefined) hideToast(saveErrorToast)
+      saveErrorToast = undefined
+    },
+    (error: unknown) => {
+      console.error('Speichern fehlgeschlagen:', error)
+      // Bleibt stehen, bis das Speichern wieder klappt – sonst übersieht man ihn
+      saveErrorToast = showToast('Änderungen konnten nicht gespeichert werden', {
+        tone: 'danger',
+        durationMs: null,
+        action: { label: 'Erneut versuchen', run: save }
+      })
+    }
+  )
 }
 
 // Beim Schließen des Fensters ausstehende Änderungen sofort schreiben
