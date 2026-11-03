@@ -23,7 +23,7 @@ export default tseslint.config(
     rules: reactHooks.configs.recommended.rules
   },
   {
-    files: ['src/main/**/*.ts', 'src/preload/**/*.ts', '*.config.*'],
+    files: ['src/main/**/*.ts', 'src/preload/**/*.ts', '*.config.*', 'scripts/**/*.mjs'],
     languageOptions: { globals: globals.node }
   },
   // Architekturregel: core bleibt rein – keine UI-, Electron- oder Node-Importe.

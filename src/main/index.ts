@@ -15,6 +15,9 @@ const DATA_FILE = 'todo-data.json'
 // den Namen gerade ableitet (Dev-Modus vs. gebaute .exe).
 app.setName(APP_NAME)
 app.setPath('userData', join(app.getPath('appData'), APP_NAME))
+// Muss zur appId in electron-builder.yml passen: Darüber ordnet Windows das Fenster
+// der installierten Verknüpfung zu (richtiges Symbol in der Taskleiste).
+app.setAppUserModelId('de.flunger.flungdo')
 
 // Nur eine Instanz: Zwei Fenster würden dieselbe JSON-Datei abwechselnd überschreiben.
 // Startet man FlungDo ein zweites Mal, beendet sich die neue Instanz sofort und

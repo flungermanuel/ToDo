@@ -1,0 +1,35 @@
+# Baut aus dem Produktions-Build (out/) einen Windows-Installer nach dist/.
+# Aufruf: npm run dist
+appId: de.flunger.flungdo
+productName: FlungDo
+copyright: Copyright © 2026 Manuel Flunger
+
+directories:
+  # Hier liegen icon.ico/icon.png (erzeugt von scripts/make-icon.mjs)
+  buildResources: build
+  output: dist
+
+# Nur der fertige Build kommt in die App – keine Quellen, Tests oder Configs.
+# Auch keine node_modules: Vite hat React & Co. schon in out/renderer gebündelt, und
+# main/preload brauchen zur Laufzeit nur electron und Node selbst. Sonst wäre alles doppelt drin.
+files:
+  - out/**/*
+  - '!out/.tsc'
+  - package.json
+  - '!node_modules'
+
+win:
+  target: nsis
+  icon: build/icon.ico
+
+# Installer: Doppelklick → installiert für den aktuellen Benutzer (ohne Admin-Rechte),
+# mit Verknüpfung im Startmenü und auf dem Desktop. Deinstallieren lässt die Daten
+# in %APPDATA%/FlungDo stehen.
+nsis:
+  oneClick: true
+  perMachine: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: FlungDo
+  deleteAppDataOnUninstall: false
+  artifactName: FlungDo-Setup-${version}.${ext}

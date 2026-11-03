@@ -106,7 +106,7 @@ Priorität: am Todo sichtbar.
 - Kleine Schritte, pro Feature ein Git-Commit mit klarer Nachricht
 - Entscheidungen kurz begründen, ich will den Code verstehen
 - Keine zusätzlichen Libraries ohne Rückfrage
-  (freigegeben: electron-vite, Vitest, ESLint + Prettier)
+  (freigegeben: electron-vite, electron-builder, Vitest, ESLint + Prettier)
 - Nach jedem Schritt committen und nach origin/main pushen
 
 ## Befehle
@@ -115,4 +115,6 @@ Priorität: am Todo sichtbar.
 - `npm run typecheck` – TypeScript prüfen
 - `npm run lint` / `npm run format` – ESLint / Prettier
 - `npm test` – Unit-Tests (Vitest)
-- .exe erzeugen: folgt in einem späteren Schritt
+- `npm run dist` – Windows-Installer nach `dist/FlungDo-Setup-<version>.exe` (electron-builder,
+  Konfiguration in `electron-builder.yml`)
+- `node scripts/make-icon.mjs` – App-Icon (`build/icon.ico`, `build/icon.png`) neu erzeugen
