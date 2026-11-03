@@ -49,8 +49,8 @@ Kategorien:
 - Startkategorien „Studium“ (blau) und „Persönlich“ (orange)
 - Namen nicht leer und eindeutig, es gibt immer mindestens eine Kategorie
 - Löschen fragt nach: Todos verschieben oder mitlöschen
-- Alle Kategorien bleiben in der Liste sichtbar; ohne offene Todos standardmäßig
-  eingeklappt, erledigte Todos ausgegraut am Ende der Kategorie
+- Tagesansicht zeigt nur Kategorien mit Todos an diesem Tag (auch wenn alle erledigt sind);
+  ohne offene Todos standardmäßig eingeklappt, erledigte Todos ausgegraut am Ende der Kategorie
 - Ein-/Ausklappen und zuletzt gewählte Kategorie: localStorage (Ansicht, keine Nutzerdaten)
 
 Verknüpfung Todo → Deadline:

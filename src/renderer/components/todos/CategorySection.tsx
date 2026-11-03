@@ -23,7 +23,6 @@ export function CategorySection({ group, collapsed, onToggle, list }: CategorySe
   const [renaming, setRenaming] = useState(false)
   const { category, offen, erledigt } = group
   const color = CATEGORY_COLOR_META[category.farbe].css
-  const leer = offen.length === 0 && erledigt.length === 0
 
   return (
     <section className="mt-1 first:mt-0">
@@ -76,7 +75,6 @@ export function CategorySection({ group, collapsed, onToggle, list }: CategorySe
             transition={{ duration: 0.18, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            {leer && <p className="py-1.5 pl-[42px] text-xs text-fg-subtle">Keine Todos</p>}
             <ul>
               <AnimatePresence initial={false}>
                 {[...offen, ...erledigt].map((todo) => (

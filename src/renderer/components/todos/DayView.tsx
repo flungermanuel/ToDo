@@ -16,16 +16,21 @@ interface DayViewProps {
 
 // Tagesansicht: Deadlines des Tages, (nur heute) Überfälliges, Todos nach Kategorien,
 // und – falls vorhanden – Todos ohne Datum.
+// Kategorien ohne Todos an diesem Tag werden ausgeblendet, damit die Liste ruhig bleibt.
+// Verwaltet werden sie in der Seitenleiste.
 export function DayView({ data, day, list }: DayViewProps) {
   const today = useToday()
   const collapsed = useCollapsedCategories()
 
-  const groups = groupTodosByCategory(data, todosForDay(data, day))
+  // Auch Kategorien, deren Todos alle erledigt sind, bleiben stehen – sonst verschwände
+  // eine Kategorie genau in dem Moment, in dem man sie abschließt.
+  const groups = groupTodosByCategory(data, todosForDay(data, day)).filter(
+    (g) => g.offen.length + g.erledigt.length > 0
+  )
   const overdue = day === today ? overdueTodos(data, today) : []
   const withoutDate = todosWithoutDate(data)
   const deadlinesToday = list.deadlines.filter((v) => v.deadline.datum === day)
   const dayList: ListContext = { ...list, contextDay: day }
-  const nothing = groups.every((g) => g.offen.length + g.erledigt.length === 0)
 
   return (
     <>
@@ -41,7 +46,7 @@ export function DayView({ data, day, list }: DayViewProps) {
         <TodoGroup title="Überfällig" tone="danger" todos={overdue} list={list} />
       )}
 
-      {nothing && overdue.length === 0 && (
+      {groups.length === 0 && overdue.length === 0 && (
         <p className="px-3 pb-2 pl-[42px] text-xs text-fg-subtle">
           {day === today ? 'Für heute ist nichts geplant.' : 'An diesem Tag ist nichts geplant.'}
         </p>
