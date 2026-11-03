@@ -5,6 +5,7 @@ import { TodoWidget } from './components/todos/TodoWidget'
 import { CalendarWidget } from './components/calendar/CalendarWidget'
 import { DeadlineWidget } from './components/deadlines/DeadlineWidget'
 import { Sidebar } from './components/sidebar/Sidebar'
+import { ToastHost } from './components/ui/ToastHost'
 
 export function App() {
   const { data, status } = useAppStore()
@@ -36,6 +37,7 @@ export function App() {
           </main>
         )
       )}
+      <ToastHost />
     </div>
   )
 }

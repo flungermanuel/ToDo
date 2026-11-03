@@ -1,15 +1,24 @@
 import * as core from '@core/index'
 import type { CategoryColor, IsoDate, Priority } from '@shared/types'
 import { getData, updateData } from './appStore'
+import { showUndo } from './toastStore'
 
 // Alles, was die UI "tun" kann. Jede Aktion ruft genau eine reine Funktion aus
 // @core auf – die Komponenten müssen weder AppData noch core kennen.
+// Löschen zeigt kurz "Rückgängig" an, statt vorher nachzufragen.
 
 export const todoActions = {
   add: (input: core.NewTodo) => updateData((d) => core.createTodo(d, input)),
   update: (id: string, patch: core.TodoPatch) => updateData((d) => core.updateTodo(d, id, patch)),
   toggle: (id: string) => updateData((d) => core.toggleTodo(d, id)),
-  remove: (id: string) => updateData((d) => core.deleteTodo(d, id)),
+  remove: (id: string) => {
+    const deleted = core.snapshotTodo(getData(), id)
+    if (!deleted) return
+    updateData((d) => core.deleteTodo(d, id))
+    showUndo(`„${deleted.todo.titel}“ gelöscht`, () =>
+      updateData((d) => core.restoreTodo(d, deleted))
+    )
+  },
   setPriority: (id: string, prioritaet: Priority) =>
     updateData((d) => core.updateTodo(d, id, { prioritaet })),
 
@@ -37,7 +46,14 @@ export const deadlineActions = {
   update: (id: string, patch: core.DeadlinePatch) =>
     updateData((d) => core.updateDeadline(d, id, patch)),
   toggle: (id: string) => updateData((d) => core.toggleDeadline(d, id)),
-  remove: (id: string) => updateData((d) => core.deleteDeadline(d, id))
+  remove: (id: string) => {
+    const deleted = core.snapshotDeadline(getData(), id)
+    if (!deleted) return
+    updateData((d) => core.deleteDeadline(d, id))
+    showUndo(`Deadline „${deleted.deadline.titel}“ gelöscht`, () =>
+      updateData((d) => core.restoreDeadline(d, deleted))
+    )
+  }
 }
 
 export const categoryActions = {
