@@ -6,6 +6,7 @@ import {
   deadlineViews,
   deleteDeadline,
   describeDeadline,
+  isArchivedDeadline,
   sortDeadlines,
   toggleDeadline,
   updateDeadline
@@ -137,5 +138,21 @@ describe('sortDeadlines', () => {
       'Beta',
       'später'
     ])
+  })
+})
+
+describe('isArchivedDeadline', () => {
+  it('blendet nur erledigte aus, die mehr als 7 Tage zurückliegen', () => {
+    const ctx = testContext()
+    let data = emptyAppData()
+    data = createDeadline(data, { titel: 'Vor 8 Tagen', datum: '2026-10-21' }, ctx)
+    data = createDeadline(data, { titel: 'Vor 7 Tagen', datum: '2026-10-22' }, ctx)
+    data = createDeadline(data, { titel: 'Alt, aber offen', datum: '2026-10-01' }, ctx)
+    data = toggleDeadline(toggleDeadline(data, 'id-1'), 'id-2')
+
+    const archived = deadlineViews(data, TODAY)
+      .filter(isArchivedDeadline)
+      .map((v) => v.deadline.titel)
+    expect(archived).toEqual(['Vor 8 Tagen'])
   })
 })

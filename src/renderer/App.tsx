@@ -28,7 +28,7 @@ export function App() {
         status === 'ready' && (
           <main className="grid min-h-0 flex-1 grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-4 px-4 pb-4">
             <TodoWidget data={data} />
-            {/* Rechte Spalte: Deadlines oben (scrollt), Kalender unten (feste Höhe) */}
+            {/* Rechte Spalte: Deadlines oben (so hoch wie nötig, scrollt), darunter der Kalender */}
             <div className="flex min-h-0 flex-col gap-4">
               <DeadlineWidget data={data} />
               <CalendarWidget data={data} />

@@ -58,7 +58,9 @@ Verknüpfung Todo → Deadline:
 - 1:1, nur in eine Richtung: Todo abhaken → verknüpfte Deadline zeigt ✓
   (Status wird aus dem Todo abgeleitet, nicht doppelt gespeichert)
 - Deadline ohne Todo wird direkt in der Deadline abgehakt
-- Erledigte Deadlines bleiben sichtbar (mit ✓), damit der Überblick erhalten bleibt
+- Erledigte Deadlines bleiben sichtbar (mit ✓), damit der Überblick erhalten bleibt;
+  liegen sie mehr als 7 Tage zurück, werden sie ausgeblendet („N ältere erledigte anzeigen“)
+- Deadline-Widget einzeilig und nur so hoch wie sein Inhalt
 
 Unteraufgaben: nur eine Ebene, Todo wird nicht automatisch erledigt (Anzeige „2/5“).
 Priorität: am Todo sichtbar.

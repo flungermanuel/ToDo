@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'motion/react'
 import { CalendarDays } from 'lucide-react'
-import { addDays, daysBetween, deadlineViews } from '@core/index'
+import { addDays, daysBetween, deadlineViews, isArchivedDeadline } from '@core/index'
 import type { AppData, IsoDate } from '@shared/types'
 import { deadlineActions } from '@renderer/state/actions'
 import { formatShortDate, relativeDays, useToday } from '@renderer/lib/dates'
@@ -16,29 +16,45 @@ interface DeadlineWidgetProps {
 
 export function DeadlineWidget({ data }: DeadlineWidgetProps) {
   const today = useToday()
+  const [showArchived, setShowArchived] = useState(false)
   const views = deadlineViews(data, today)
   const overdue = views.filter((v) => v.ueberfaellig).length
+  const archived = views.filter(isArchivedDeadline).length
+  const visible = showArchived ? views : views.filter((v) => !isArchivedDeadline(v))
   const todoTitles = new Map(data.todos.map((t) => [t.id, t.titel]))
 
   return (
+    // Kein flex-1: Das Widget ist nur so hoch wie sein Inhalt (höchstens bis zum Kalender,
+    // dann scrollt es). So bleibt bei wenigen Deadlines kein leerer Kasten stehen.
     <Widget
-      className="flex-1"
       title="Deadlines"
       meta={overdue > 0 ? <span className="text-danger">{overdue} überfällig</span> : undefined}
     >
       <NewDeadlineRow today={today} />
 
       {views.length === 0 && (
-        <div className="px-3 py-8 text-center">
+        <div className="px-3 py-4 text-center">
           <p className="text-fg-muted">Keine Deadlines.</p>
           <p className="mt-1 text-xs text-fg-subtle">Titel eingeben, Datum wählen, Enter.</p>
         </div>
       )}
 
+      {/* Ältere erledigte stehen chronologisch ganz oben – dort klappen sie auch auf */}
+      {archived > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowArchived((v) => !v)}
+          aria-expanded={showArchived}
+          className="w-full rounded-lg px-3 py-1 pl-[42px] text-left text-xs text-fg-subtle hover:bg-hover hover:text-fg-muted"
+        >
+          {showArchived ? 'Ältere erledigte ausblenden' : `${archived} ältere erledigte anzeigen`}
+        </button>
+      )}
+
       {/* Erledigte bleiben an ihrem Platz in der Zeitleiste – nur mit Haken */}
       <ul>
         <AnimatePresence initial={false}>
-          {views.map((view) => (
+          {visible.map((view) => (
             <DeadlineItem
               key={view.deadline.id}
               view={view}

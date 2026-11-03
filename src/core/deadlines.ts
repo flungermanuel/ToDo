@@ -115,6 +115,17 @@ export function deadlineViews(data: AppData, today: IsoDate): DeadlineView[] {
   return sortDeadlines(data.deadlines).map((d) => describeDeadline(data, d, today))
 }
 
+/** So viele Tage nach ihrer Fälligkeit bleiben erledigte Deadlines in der Liste sichtbar */
+export const DONE_DEADLINE_VISIBLE_DAYS = 7
+
+/**
+ * Erledigt und schon länger her: wird standardmäßig ausgeblendet, damit die Liste nicht
+ * endlos wächst. Offene Deadlines bleiben immer sichtbar, egal wie alt.
+ */
+export function isArchivedDeadline(view: DeadlineView): boolean {
+  return view.erledigt && view.tageBis < -DONE_DEADLINE_VISIBLE_DAYS
+}
+
 function mapDeadline(data: AppData, id: string, fn: (d: Deadline) => Deadline): AppData {
   if (!data.deadlines.some((d) => d.id === id)) return data
   return { ...data, deadlines: data.deadlines.map((d) => (d.id === id ? fn(d) : d)) }
