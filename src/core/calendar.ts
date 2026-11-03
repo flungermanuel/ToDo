@@ -79,6 +79,21 @@ export function overdueTodos(data: AppData, today: IsoDate): Todo[] {
   ).sort((a, b) => effectiveDate(data, a)!.localeCompare(effectiveDate(data, b)!))
 }
 
+export interface DayProgress {
+  erledigt: number
+  gesamt: number
+}
+
+/**
+ * Wie viele Todos eines Tages schon erledigt sind – für den Fortschrittsbalken.
+ * Zählt genau die Todos, die die Tagesansicht unter dem Tag zeigt. Überfälliges von
+ * früher zählt bewusst nicht mit, sonst würde der Balken nie voll.
+ */
+export function dayProgress(data: AppData, day: IsoDate): DayProgress {
+  const todos = todosForDay(data, day)
+  return { erledigt: todos.filter((t) => t.erledigt).length, gesamt: todos.length }
+}
+
 export function deadlinesForDay(data: AppData, day: IsoDate): Deadline[] {
   return sortDeadlines(data.deadlines.filter((d) => d.datum === day))
 }

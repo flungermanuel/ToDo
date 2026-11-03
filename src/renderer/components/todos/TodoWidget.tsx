@@ -1,9 +1,10 @@
-import { deadlineViews, isoWeek, weekDays } from '@core/index'
+import { dayProgress, deadlineViews, isoWeek, weekDays } from '@core/index'
 import type { AppData } from '@shared/types'
 import { useView, viewActions, type ViewMode } from '@renderer/state/viewStore'
 import { dayLabel, formatLongDate, formatRange, isRelativeDay, useToday } from '@renderer/lib/dates'
 import { Widget } from '@renderer/components/Widget'
 import { Segmented } from '@renderer/components/ui/Segmented'
+import { DayProgressBar } from './DayProgressBar'
 import { DayView } from './DayView'
 import type { ListContext } from './listContext'
 import { ViewNavigation } from './ViewNavigation'
@@ -30,6 +31,7 @@ export function TodoWidget({ data }: TodoWidgetProps) {
 
   const week = weekDays(view.day)
   const isCurrent = view.mode === 'tag' ? view.day === today : week.includes(today)
+  const progress = dayProgress(data, view.day)
 
   return (
     <Widget
@@ -54,6 +56,9 @@ export function TodoWidget({ data }: TodoWidgetProps) {
         </span>
       }
       meta={<ViewNavigation unit={view.mode === 'tag' ? 'Tag' : 'Woche'} isCurrent={isCurrent} />}
+      subheader={
+        view.mode === 'tag' && progress.gesamt > 0 ? <DayProgressBar {...progress} /> : undefined
+      }
     >
       {view.mode === 'tag' ? (
         <DayView data={data} day={view.day} list={list} />

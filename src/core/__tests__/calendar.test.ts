@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { emptyAppData, type AppData } from '@shared/types'
 import {
   calendarMarkers,
+  dayProgress,
   deadlinesForDay,
   effectiveDate,
   isoWeek,
@@ -144,5 +145,28 @@ describe('calendarMarkers', () => {
     expect(calendarMarkers(data, ['2026-10-20'], TODAY).get('2026-10-20')!.deadline).toBe(
       'erledigt'
     )
+  })
+})
+
+describe('dayProgress', () => {
+  it('zählt erledigte und alle Todos des Tages, ohne Überfälliges', () => {
+    const ctx = testContext()
+    let data = emptyAppData()
+    data = createTodo(data, { titel: 'Heute 1', datum: TODAY }, ctx)
+    data = createTodo(data, { titel: 'Heute 2', datum: TODAY }, ctx)
+    data = createTodo(data, { titel: 'Gestern offen', datum: '2026-10-28' }, ctx)
+    data = createTodo(data, { titel: 'Ohne Datum' }, ctx)
+    expect(dayProgress(data, TODAY)).toEqual({ erledigt: 0, gesamt: 2 })
+
+    data = toggleTodo(data, 'id-1')
+    expect(dayProgress(data, TODAY)).toEqual({ erledigt: 1, gesamt: 2 })
+  })
+
+  it('zählt Todos mit, die ihr Datum von der verknüpften Deadline haben', () => {
+    const ctx = testContext()
+    let data = createDeadline(emptyAppData(), { titel: 'Abgabe', datum: TODAY }, ctx)
+    data = createTodo(data, { titel: 'Bericht', deadlineId: 'id-1' }, ctx)
+    expect(dayProgress(data, TODAY)).toEqual({ erledigt: 0, gesamt: 1 })
+    expect(dayProgress(emptyAppData(), TODAY)).toEqual({ erledigt: 0, gesamt: 0 })
   })
 })
