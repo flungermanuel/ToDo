@@ -67,8 +67,21 @@ export interface Deadline {
   prioritaet: Priority
 }
 
-/** Version 1: V1 ohne Kategorien · 2: mit Kategorien (V1.1) · 3: Todos mit Datum (V1.2) */
-export const CURRENT_VERSION = 3
+/**
+ * Prüfung: nur Titel und Datum. Anders als eine Deadline wird sie nicht abgehakt –
+ * sie ist vorbei, sobald ihr Tag vorbei ist.
+ */
+export interface Exam {
+  id: string
+  titel: string
+  datum: IsoDate
+}
+
+/**
+ * Version 1: V1 ohne Kategorien · 2: mit Kategorien (V1.1) · 3: Todos mit Datum (V1.2)
+ * · 4: Prüfungen (V1.3)
+ */
+export const CURRENT_VERSION = 4
 
 export interface AppData {
   version: typeof CURRENT_VERSION
@@ -76,6 +89,7 @@ export interface AppData {
   categories: Category[]
   todos: Todo[]
   deadlines: Deadline[]
+  exams: Exam[]
 }
 
 export function emptyAppData(): AppData {
@@ -83,6 +97,7 @@ export function emptyAppData(): AppData {
     version: CURRENT_VERSION,
     categories: DEFAULT_CATEGORIES.map((c) => ({ ...c })),
     todos: [],
-    deadlines: []
+    deadlines: [],
+    exams: []
   }
 }

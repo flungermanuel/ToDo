@@ -1,4 +1,4 @@
-import type { AppData, Deadline, Todo } from '@shared/types'
+import type { AppData, Deadline, Exam, Todo } from '@shared/types'
 import { withoutDeadline } from './todos'
 
 // Rückgängig machen von Löschungen. Bewusst wird nicht der alte Gesamtzustand
@@ -20,6 +20,11 @@ export interface DeletedDeadline {
   linkedTodoId?: string
 }
 
+export interface DeletedExam {
+  exam: Exam
+  index: number
+}
+
 /** Merkt sich ein Todo vor dem Löschen. `undefined`, wenn es die ID nicht gibt. */
 export function snapshotTodo(data: AppData, id: string): DeletedTodo | undefined {
   const index = data.todos.findIndex((t) => t.id === id)
@@ -31,6 +36,11 @@ export function snapshotDeadline(data: AppData, id: string): DeletedDeadline | u
   if (index < 0) return undefined
   const linkedTodoId = data.todos.find((t) => t.deadlineId === id)?.id
   return { deadline: data.deadlines[index]!, index, linkedTodoId }
+}
+
+export function snapshotExam(data: AppData, id: string): DeletedExam | undefined {
+  const index = data.exams.findIndex((e) => e.id === id)
+  return index < 0 ? undefined : { exam: data.exams[index]!, index }
 }
 
 export function restoreTodo(data: AppData, { todo, index }: DeletedTodo): AppData {
@@ -69,6 +79,11 @@ export function restoreDeadline(
     deadlines: insertAt(data.deadlines, index, deadline),
     todos: data.todos.map((t) => (relink(t) ? { ...t, deadlineId: deadline.id } : t))
   }
+}
+
+export function restoreExam(data: AppData, { exam, index }: DeletedExam): AppData {
+  if (data.exams.some((e) => e.id === exam.id)) return data
+  return { ...data, exams: insertAt(data.exams, index, exam) }
 }
 
 function insertAt<T>(list: readonly T[], index: number, item: T): T[] {

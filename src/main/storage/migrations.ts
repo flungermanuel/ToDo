@@ -7,6 +7,7 @@ import {
   type Category,
   type CategoryColor,
   type Deadline,
+  type Exam,
   type Priority,
   type Subtask,
   type Todo
@@ -19,6 +20,7 @@ import {
 //   1 (V1)   – ohne Kategorien → Startkategorien anlegen, alle Todos nach "Persönlich"
 //   2 (V1.1) – mit Kategorien
 //   3 (V1.2) – Todos mit optionalem Datum; ältere Todos bleiben "ohne Datum"
+//   4 (V1.3) – Prüfungen; ältere Dateien starten mit leerer Prüfungsliste
 
 export class UnreadableDataError extends Error {}
 
@@ -27,7 +29,7 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 export function migrate(raw: unknown): AppData {
   if (!isObject(raw)) throw new UnreadableDataError('Datei enthält kein Objekt')
   const version = raw['version']
-  if (version !== 1 && version !== 2 && version !== 3) {
+  if (version !== 1 && version !== 2 && version !== 3 && version !== 4) {
     throw new UnreadableDataError(`Unbekannte Datenversion: ${String(version)}`)
   }
 
@@ -67,6 +69,12 @@ export function migrate(raw: unknown): AppData {
     // Todos ohne (gültige) Kategorie – z. B. alle aus V1 – bekommen die Ersatzkategorie
     if (!categoryIds.has(todo.categoryId)) todo.categoryId = fallbackCategoryId
     return [todo]
+  })
+
+  // Vor Version 4 fehlt das Feld – asArray macht daraus eine leere Liste
+  data.exams = asArray(raw['exams']).flatMap((e) => {
+    const exam = toExam(e)
+    return exam ? [exam] : []
   })
 
   return data
@@ -114,6 +122,12 @@ function toDeadline(value: unknown): Deadline | null {
     erledigt: value['erledigt'] === true,
     prioritaet: toPriority(value['prioritaet'])
   }
+}
+
+function toExam(value: unknown): Exam | null {
+  if (!isObject(value) || !isString(value['id']) || !isString(value['titel'])) return null
+  if (!isString(value['datum']) || !ISO_DATE.test(value['datum'])) return null
+  return { id: value['id'], titel: value['titel'], datum: value['datum'] }
 }
 
 function toPriority(value: unknown): Priority {

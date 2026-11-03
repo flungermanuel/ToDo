@@ -7,7 +7,7 @@ import { JsonStorage } from '../JsonStorage'
 import { migrate, UnreadableDataError } from '../migrations'
 
 const sample: AppData = {
-  version: 3,
+  version: 4,
   categories: [
     { id: 'c1', name: 'Uni', farbe: 'purple' },
     { id: 'c2', name: 'Sport', farbe: 'green' }
@@ -25,7 +25,8 @@ const sample: AppData = {
       datum: '2026-11-03',
       deadlineId: 'd1'
     }
-  ]
+  ],
+  exams: [{ id: 'e1', titel: 'Statistik', datum: '2027-02-09' }]
 }
 
 // So sah eine gespeicherte Datei in V1 aus (ohne Kategorien)
@@ -60,7 +61,7 @@ describe('migrate', () => {
 
   it('migriert V1-Dateien: Startkategorien, alle Todos nach "Persönlich", nichts geht verloren', () => {
     const result = migrate(structuredClone(v1File))
-    expect(result.version).toBe(3)
+    expect(result.version).toBe(4)
     expect(result.categories.map((c) => c.name)).toEqual(['Studium', 'Persönlich'])
     expect(result.todos).toHaveLength(2)
     expect(result.todos.every((t) => t.categoryId === 'cat-persoenlich')).toBe(true)
@@ -94,8 +95,24 @@ describe('migrate', () => {
       ],
       deadlines: []
     })
-    expect(result.version).toBe(3)
+    expect(result.version).toBe(4)
     expect(result.todos.map((t) => t.datum)).toEqual([undefined, undefined])
+  })
+
+  it('Version 3 → 4: Prüfungsliste startet leer, kaputte Prüfungen werden verworfen', () => {
+    const { exams: _exams, ...v3 } = structuredClone(sample)
+    const migrated = migrate({ ...v3, version: 3 })
+    expect(migrated).toEqual({ ...sample, exams: [] })
+
+    const withBroken = migrate({
+      ...structuredClone(sample),
+      exams: [
+        { id: 'e1', titel: 'Statistik', datum: '2027-02-09' },
+        { id: 'e2', titel: 'Ohne Datum' },
+        { id: 'e3', titel: 'Falsches Format', datum: '9.2.2027' }
+      ]
+    })
+    expect(withBroken.exams.map((e) => e.id)).toEqual(['e1'])
   })
 
   it('lehnt fremde Formate und unbekannte Versionen ab', () => {

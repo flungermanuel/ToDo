@@ -29,13 +29,15 @@ Subtask  = { id, titel, erledigt }
 Todo     = { id, titel, erledigt, erstelltAm, prioritaet, unteraufgaben: Subtask[],
              categoryId, datum?: IsoDate, deadlineId?: string }
 Deadline = { id, titel, datum /* "YYYY-MM-DD" */, erledigt, prioritaet }
-AppData  = { version: 3, categories: Category[], todos: Todo[], deadlines: Deadline[] }
+Exam     = { id, titel, datum }       // Prüfung: wird nicht abgehakt, ist nach ihrem Tag vorbei
+AppData  = { version: 4, categories: Category[], todos: Todo[], deadlines: Deadline[], exams: Exam[] }
 ```
 
 Versionen der Datei (Migration in src/main/storage/migrations.ts):
 - 1 (V1): ohne Kategorien → Startkategorien anlegen, alle Todos nach „Persönlich“
 - 2 (V1.1): mit Kategorien
 - 3 (V1.2): Todos mit optionalem Datum (ältere bleiben „ohne Datum“)
+- 4 (V1.3): Prüfungen (ältere Dateien starten mit leerer Prüfungsliste)
 
 Datum & Zeit (V1.2):
 - „Effektives Datum“ eines Todos = eigenes Datum, sonst Datum der verknüpften Deadline
