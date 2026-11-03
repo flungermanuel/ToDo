@@ -27,6 +27,8 @@
   --cat-blue: #007aff;
   --cat-purple: #af52de;
   --cat-gray: #8e8e93;
+  /* Prüfungen: eigener Name, damit sich ihre Farbe unabhängig ändern lässt */
+  --exam: var(--cat-purple);
   /* Wochenende: leichter Farbton für Samstag/Sonntag */
   --weekend: rgb(88 86 214 / 0.06);
   --weekend-fg: #7d7bc9;
@@ -79,6 +81,7 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-weekend: var(--weekend);
+  --color-exam: var(--exam);
   --color-weekend-fg: var(--weekend-fg);
 
   --radius-card: 12px;

@@ -56,6 +56,19 @@ export const deadlineActions = {
   }
 }
 
+export const examActions = {
+  add: (input: core.NewExam) => updateData((d) => core.createExam(d, input)),
+  update: (id: string, patch: core.ExamPatch) => updateData((d) => core.updateExam(d, id, patch)),
+  remove: (id: string) => {
+    const deleted = core.snapshotExam(getData(), id)
+    if (!deleted) return
+    updateData((d) => core.deleteExam(d, id))
+    showUndo(`Prüfung „${deleted.exam.titel}“ gelöscht`, () =>
+      updateData((d) => core.restoreExam(d, deleted))
+    )
+  }
+}
+
 export const categoryActions = {
   /** Legt an und gibt die neue ID zurück (oder null, wenn der Name ungültig/vergeben ist) */
   add: (name: string, farbe?: CategoryColor): string | null => {
