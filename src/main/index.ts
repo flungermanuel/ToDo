@@ -16,6 +16,21 @@ const DATA_FILE = 'todo-data.json'
 app.setName(APP_NAME)
 app.setPath('userData', join(app.getPath('appData'), APP_NAME))
 
+// Nur eine Instanz: Zwei Fenster würden dieselbe JSON-Datei abwechselnd überschreiben.
+// Startet man FlungDo ein zweites Mal, beendet sich die neue Instanz sofort und
+// die laufende holt ihr Fenster nach vorne.
+const isPrimaryInstance = app.requestSingleInstanceLock()
+if (!isPrimaryInstance) {
+  app.quit()
+} else {
+  app.on('second-instance', () => {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (!win) return
+    if (win.isMinimized()) win.restore()
+    win.focus()
+  })
+}
+
 function createWindow(): void {
   const win = new BrowserWindow({
     title: APP_NAME,
@@ -51,6 +66,8 @@ function createWindow(): void {
 let storage: Storage | undefined
 
 app.whenReady().then(async () => {
+  // Die zweite Instanz beendet sich gerade – sie darf die Datei nicht anfassen
+  if (!isPrimaryInstance) return
   const dataPath = join(app.getPath('userData'), DATA_FILE)
   // Daten aus der Zeit vor der Umbenennung (Ordner "todo") übernehmen
   await adoptLegacyFile(join(app.getPath('appData'), 'todo', DATA_FILE), dataPath)
