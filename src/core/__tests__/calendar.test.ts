@@ -16,6 +16,7 @@ import {
   weekdayIndex
 } from '../calendar'
 import { createDeadline, toggleDeadline } from '../deadlines'
+import { createExam } from '../exams'
 import { createTodo, setTodoDate, toggleTodo } from '../todos'
 import { testContext } from './helpers'
 
@@ -127,10 +128,17 @@ describe('calendarMarkers', () => {
     const data = setup()
     const days = ['2026-10-27', '2026-10-28', TODAY, '2026-11-05', '2026-11-06']
     const m = calendarMarkers(data, days, TODAY)
-    expect(m.get(TODAY)).toEqual({ offeneTodos: 1, deadline: 'keine' })
+    expect(m.get(TODAY)).toEqual({ offeneTodos: 1, deadline: 'keine', pruefung: false })
     // erledigte Todos zählen nicht
-    expect(m.get('2026-10-28')).toEqual({ offeneTodos: 0, deadline: 'keine' })
-    expect(m.get('2026-11-05')).toEqual({ offeneTodos: 1, deadline: 'offen' })
+    expect(m.get('2026-10-28')).toEqual({ offeneTodos: 0, deadline: 'keine', pruefung: false })
+    expect(m.get('2026-11-05')).toEqual({ offeneTodos: 1, deadline: 'offen', pruefung: false })
+  })
+
+  it('markiert Tage mit Prüfung', () => {
+    const data = createExam(emptyAppData(), { titel: 'Statistik', datum: TODAY }, testContext())
+    const m = calendarMarkers(data, [TODAY, '2026-10-30'], TODAY)
+    expect(m.get(TODAY)!.pruefung).toBe(true)
+    expect(m.get('2026-10-30')!.pruefung).toBe(false)
   })
 
   it('Deadline-Zustand: überfällig > offen > erledigt', () => {

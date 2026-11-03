@@ -1,9 +1,15 @@
-import { groupTodosByCategory, overdueTodos, todosForDay, todosWithoutDate } from '@core/index'
+import {
+  examsForDay,
+  groupTodosByCategory,
+  overdueTodos,
+  todosForDay,
+  todosWithoutDate
+} from '@core/index'
 import type { AppData, IsoDate } from '@shared/types'
 import { useCollapsedCategories } from '@renderer/state/useCollapsedCategories'
 import { useToday } from '@renderer/lib/dates'
 import { CategorySection } from './CategorySection'
-import { DeadlineHints } from './DeadlineHints'
+import { DayHints } from './DayHints'
 import type { ListContext } from './listContext'
 import { NewTodoForm } from './NewTodoForm'
 import { TodoGroup } from './TodoGroup'
@@ -14,7 +20,7 @@ interface DayViewProps {
   list: ListContext
 }
 
-// Tagesansicht: Deadlines des Tages, (nur heute) Überfälliges, Todos nach Kategorien,
+// Tagesansicht: Prüfungen und Deadlines des Tages, (nur heute) Überfälliges, Todos nach Kategorien,
 // und – falls vorhanden – Todos ohne Datum.
 // Kategorien ohne Todos an diesem Tag werden ausgeblendet, damit die Liste ruhig bleibt.
 // Verwaltet werden sie in der Seitenleiste.
@@ -40,7 +46,11 @@ export function DayView({ data, day, list }: DayViewProps) {
         onAdded={(categoryId) => collapsed.expand(categoryId)}
       />
 
-      <DeadlineHints views={deadlinesToday} className="mb-2 px-3 pl-[42px]" />
+      <DayHints
+        exams={examsForDay(data, day)}
+        deadlines={deadlinesToday}
+        className="mb-2 px-3 pl-[42px]"
+      />
 
       {overdue.length > 0 && (
         <TodoGroup title="Überfällig" tone="danger" todos={overdue} list={list} />

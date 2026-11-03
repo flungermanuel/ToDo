@@ -32,7 +32,8 @@ interface CalendarWidgetProps {
 }
 
 // Kleiner Kalender unter den Deadlines. Pro Tag ganz dezent:
-// · = offene Todos, ! = Deadline (rot überfällig, orange offen, gedimmt erledigt).
+// · = offene Todos, ! = Deadline (rot überfällig, orange offen, gedimmt erledigt),
+// lila Ring um die Tageszahl = Prüfung.
 // Klick auf einen Tag → links die Tagesansicht dieses Tages.
 export function CalendarWidget({ data }: CalendarWidgetProps) {
   const today = useToday()
@@ -159,6 +160,11 @@ function DayCell({ day, marker, today, selected, outside }: DayCellProps) {
               : weekend
                 ? 'text-weekend-fg'
                 : 'text-fg',
+          // Prüfung: lila Ring – beim ausgewählten Tag mit etwas Abstand um den blauen Kreis
+          marker.pruefung &&
+            (selected
+              ? 'ring-2 ring-exam ring-offset-1 ring-offset-surface'
+              : 'ring-[1.5px] ring-exam'),
           outside && !selected && 'opacity-35',
           !selected &&
             'group-hover/cell:bg-hover group-focus-visible/cell:ring-2 group-focus-visible/cell:ring-accent/50'
@@ -217,6 +223,7 @@ function monthGridFor(day: IsoDate): IsoDate[][] {
 
 function describe(marker: DayMarker): string {
   const parts: string[] = []
+  if (marker.pruefung) parts.push('Prüfung')
   if (marker.offeneTodos > 0) parts.push(`${marker.offeneTodos} offene Todos`)
   if (marker.deadline === 'ueberfaellig') parts.push('überfällige Deadline')
   if (marker.deadline === 'offen') parts.push('Deadline')

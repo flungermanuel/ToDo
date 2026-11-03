@@ -106,6 +106,8 @@ export interface DayMarker {
   offeneTodos: number
   /** Wichtigster Zustand der Deadlines an diesem Tag (überfällig > offen > erledigt) */
   deadline: DeadlineMarker
+  /** Ist an diesem Tag eine Prüfung? */
+  pruefung: boolean
 }
 
 export function calendarMarkers(
@@ -114,7 +116,7 @@ export function calendarMarkers(
   today: IsoDate
 ): Map<IsoDate, DayMarker> {
   const markers = new Map<IsoDate, DayMarker>()
-  for (const day of days) markers.set(day, { offeneTodos: 0, deadline: 'keine' })
+  for (const day of days) markers.set(day, { offeneTodos: 0, deadline: 'keine', pruefung: false })
 
   for (const todo of data.todos) {
     const date = effectiveDate(data, todo)
@@ -132,6 +134,11 @@ export function calendarMarkers(
         ? 'ueberfaellig'
         : 'offen'
     if (rank[state] > rank[marker.deadline]) marker.deadline = state
+  }
+
+  for (const exam of data.exams) {
+    const marker = markers.get(exam.datum)
+    if (marker) marker.pruefung = true
   }
 
   return markers

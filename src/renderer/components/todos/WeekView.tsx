@@ -1,7 +1,14 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'motion/react'
 import { Plus } from 'lucide-react'
-import { isWeekend, overdueTodos, todosForDay, todosWithoutDate, weekDays } from '@core/index'
+import {
+  examsForDay,
+  isWeekend,
+  overdueTodos,
+  todosForDay,
+  todosWithoutDate,
+  weekDays
+} from '@core/index'
 import type { AppData, IsoDate } from '@shared/types'
 import { todoActions } from '@renderer/state/actions'
 import { useLastCategory } from '@renderer/state/useLastCategory'
@@ -9,7 +16,7 @@ import { viewActions } from '@renderer/state/viewStore'
 import { toLocalDate, useToday } from '@renderer/lib/dates'
 import { cn } from '@renderer/lib/utils'
 import { AddRow } from '@renderer/components/ui/AddRow'
-import { DeadlineHints } from './DeadlineHints'
+import { DayHints } from './DayHints'
 import type { ListContext } from './listContext'
 import { NewTodoForm } from './NewTodoForm'
 import { TodoGroup } from './TodoGroup'
@@ -129,7 +136,11 @@ function WeekDay({ data, day, today, list }: WeekDayProps) {
         </button>
       </div>
 
-      <DeadlineHints views={deadlines} className="px-3 pb-1 pl-[42px]" />
+      <DayHints
+        exams={examsForDay(data, day)}
+        deadlines={deadlines}
+        className="px-3 pb-1 pl-[42px]"
+      />
 
       {adding && (
         <AddRow
