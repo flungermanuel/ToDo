@@ -97,11 +97,23 @@ Priorität: am Todo sichtbar.
 - Bugfix: Erledigte Todos lassen sich durch erneutes Klicken auf das Häkchen
   wieder zurücknehmen (lokaler Häkchen-Zustand wurde nicht zurückgesetzt)
 
+## V1.3 (Tag v1.3)
+- Robustheit: nur eine Instanz gleichzeitig, Löschen mit „Rückgängig“ (5 s),
+  sichtbarer Hinweis bei Speicherfehlern
+- Tagesansicht: Fortschrittsbalken (erledigt/gesamt der Todos des Tages, ohne Überfälliges),
+  Kategorien ohne Todos am Tag ausgeblendet
+- Deadlines einzeilig und kompakt, ältere erledigte ausgeblendet
+- Prüfungen: Widget rechts zwischen Deadlines und Kalender, Titel + Datum mit Countdown
+  (≤ 7 Tage orange, heute rot, nächste lila hinterlegt), vergangene ausgeblendet;
+  in Tages-/Wochenansicht mit Hut-Symbol, im Kalender als lila Ring
+- Windows-Installer mit App-Icon (`npm run dist`)
+
 ## Design
 - Systemschrift (-apple-system, "Segoe UI"), viel Weißraum, 12 px Eckenradius, dezente Schatten
 - Eigene schlanke Titelleiste, keine Standard-Windows-Optik
 - Farben als CSS-Variablen, Dark Mode über prefers-color-scheme
-- Kalender (seit V1.2): minimal, · für Todos und ! für Deadlines
+- Kalender (seit V1.2): minimal, · für Todos und ! für Deadlines, lila Ring für Prüfungen (V1.3)
+- Prüfungen in Lila (`--exam`), Deadlines orange/rot
 
 ## Arbeitsregeln
 - Erst Plan vorschlagen, dann umsetzen

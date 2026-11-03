@@ -22,18 +22,26 @@ nachvollziehbaren Code.
 - **Kategorien** mit Farbe (z. B. „Studium“ blau, „Persönlich“ orange): Auswahl per Chips,
   Liste nach Kategorien gruppiert, erledigte Todos ausgegraut am Ende
 - **Datum** pro Todo: Ein neues Todo bekommt den angezeigten Tag, ein anderes Datum ist wählbar
+- Löschen lässt sich ein paar Sekunden lang **rückgängig** machen
 
 ### Deadlines
 - Deadline = Titel + Datum, nach Fälligkeit sortiert
 - Überfällige Deadlines farblich markiert, erledigte bleiben mit ✓ sichtbar
+  (nach 7 Tagen ausgeblendet, auf Wunsch wieder einblendbar)
 - Optional **mit einem Todo verknüpft** (1:1): Wird das Todo abgehakt, zeigt die Deadline ✓
 - Todos ohne Deadline („Gym“) und Deadlines ohne Todo sind beide erlaubt
 
+### Prüfungen
+- Prüfung = Titel + Datum, mit Countdown („in 12 Tagen“); bald anstehende orange,
+  die nächste lila hervorgehoben, vergangene ausgeblendet
+- Erscheinen auch in Tages-/Wochenansicht und als lila Ring im Kalender
+
 ### Planung & Kalender
-- **Tagesansicht:** Deadlines des Tages, „Überfällig“, Todos nach Kategorien, „Ohne Datum“
+- **Tagesansicht:** Prüfungen und Deadlines des Tages, Fortschrittsbalken („3/5 erledigt“),
+  „Überfällig“, Todos nach Kategorien (nur Kategorien mit Todos an dem Tag), „Ohne Datum“
 - **Wochenansicht:** Montag bis Sonntag untereinander, Kalenderwoche nach ISO 8601,
   Wochenende farblich abgesetzt, „+“ pro Tag
-- **Kalender-Widget** (Woche/Monat): `·` = offene Todos, `!` = Deadline;
+- **Kalender-Widget** (Woche/Monat): `·` = offene Todos, `!` = Deadline, lila Ring = Prüfung;
   Klick auf einen Tag öffnet dessen Tagesansicht
 
 ### Allgemein
@@ -41,12 +49,12 @@ nachvollziehbaren Code.
 - Eigene schlanke Titelleiste, keine Standard-Windows-Optik
 - Seitenleiste (Hamburger-Menü) für Kategorienverwaltung und Einstellungen
 - Läuft komplett lokal: kein Konto, kein Server, keine Cloud
+- Windows-Installer (`npm run dist`) mit eigenem App-Icon
 
 ## Geplant / Ausbaustufen
 
 | Stufe | Inhalt |
 |---|---|
-| Installer | Auslieferung als `.exe` (electron-builder) |
 | KI-Eingabe | Freitext wie „Statistik-Abgabe Freitag, wichtig“ wird per `parseInput(text)` in ein Todo/eine Deadline umgewandelt – als austauschbare Funktion |
 | Speicherung | Wechsel von JSON auf SQLite möglich, ohne den Rest der App anzufassen |
 | Später denkbar | Wiederholungen, Erinnerungen, Uhrzeiten, Drag & Drop zwischen Tagen, Sync |
@@ -57,7 +65,7 @@ nachvollziehbaren Code.
 
 | Bereich | Wahl |
 |---|---|
-| Desktop-Hülle | Electron (Build mit electron-vite, später electron-builder) |
+| Desktop-Hülle | Electron (Build mit electron-vite, Installer mit electron-builder) |
 | Oberfläche | React + Vite + TypeScript |
 | Styling | Tailwind CSS, shadcn/ui, Lucide Icons, Framer Motion |
 | Tests / Qualität | Vitest, ESLint, Prettier |
@@ -92,7 +100,9 @@ Subtask  = { id, titel, erledigt }
 Todo     = { id, titel, erledigt, erstelltAm, prioritaet, unteraufgaben: Subtask[],
              categoryId, datum?: "YYYY-MM-DD", deadlineId?: string }
 Deadline = { id, titel, datum: "YYYY-MM-DD", erledigt, prioritaet }
-AppData  = { version: 3, categories: Category[], todos: Todo[], deadlines: Deadline[] }
+Exam     = { id, titel, datum: "YYYY-MM-DD" }
+AppData  = { version: 4, categories: Category[], todos: Todo[], deadlines: Deadline[],
+             exams: Exam[] }
 ```
 
 Die Datei ist versioniert; ältere Versionen werden beim Start automatisch migriert.
@@ -110,5 +120,5 @@ Die Datei ist versioniert; ältere Versionen werden beim Start automatisch migri
 
 ## Status
 
-Aktuelle Version: **1.2.1** – Todos, Deadlines, Kategorien, Tages-/Wochenansicht und
-Kalender sind fertig. Installer und KI-Eingabe folgen.
+Aktuelle Version: **1.3.0** – Todos, Deadlines, Prüfungen, Kategorien, Tages-/Wochenansicht,
+Kalender und Windows-Installer sind fertig. Die KI-Eingabe folgt.
