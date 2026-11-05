@@ -117,11 +117,15 @@ Priorität: am Todo sichtbar.
 
 ## Arbeitsregeln
 - Erst Plan vorschlagen, dann umsetzen
-- Kleine Schritte, pro Feature ein Git-Commit mit klarer Nachricht
+- Kleine Schritte: jede in sich abgeschlossene Änderung (Feature-Teilschritt, Bugfix, Refactoring,
+  Doku, Konfiguration) bekommt sofort einen eigenen Git-Commit, nichts sammeln
+- Ein Commit = eine nachvollziehbare Änderung: Titel sagt, was sich ändert, der Text bei Bedarf,
+  warum; keine Sammel-Commits und keine künstlichen Commits ohne echte Änderung
+- Vor jedem Commit müssen Typecheck und Tests durchlaufen, wenn Code geändert wurde
+- Jeden Commit direkt nach origin/main pushen
 - Entscheidungen kurz begründen, ich will den Code verstehen
 - Keine zusätzlichen Libraries ohne Rückfrage
   (freigegeben: electron-vite, electron-builder, Vitest, ESLint + Prettier)
-- Nach jedem Schritt committen und nach origin/main pushen
 
 ## Befehle
 - `npm run dev` – App im Entwicklungsmodus starten (Hot Reload)
