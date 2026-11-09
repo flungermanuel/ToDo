@@ -1,0 +1,28 @@
+# Prüft jeden Push und Pull Request: Typen, Lint, Tests und Produktions-Build.
+# Läuft auf Linux, weil das schneller startet – der Code ist plattformunabhängig,
+# nur der Installer wird unter Windows gebaut (siehe release.yml).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # Für Typecheck, Tests und Build wird das Electron-Programm selbst nicht gebraucht
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Node 24: wie in Electron 45, und node:sqlite ist eingebaut
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
