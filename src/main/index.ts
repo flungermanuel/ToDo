@@ -2,7 +2,7 @@ import { join } from 'node:path'
 import { app, BrowserWindow, nativeTheme } from 'electron'
 import { registerIpcHandlers } from './ipc'
 import { Notices } from './notices'
-import { JsonStorage } from './storage/JsonStorage'
+import { createStorage, JSON_FILE } from './storage/createStorage'
 import { adoptLegacyFile } from './storage/legacy'
 import type { Storage } from './storage/Storage'
 
@@ -10,7 +10,6 @@ import type { Storage } from './storage/Storage'
 const BACKGROUND = { light: '#f5f5f7', dark: '#1c1c1e' }
 
 const APP_NAME = 'FlungDo'
-const DATA_FILE = 'todo-data.json'
 
 // Daten-Ordner fest auf %APPDATA%/FlungDo setzen – unabhängig davon, wie Electron
 // den Namen gerade ableitet (Dev-Modus vs. gebaute .exe).
@@ -22,7 +21,7 @@ app.setPath('userData', process.env['FLUNGDO_DATA_DIR'] || join(app.getPath('app
 // der installierten Verknüpfung zu (richtiges Symbol in der Taskleiste).
 app.setAppUserModelId('de.flunger.flungdo')
 
-// Nur eine Instanz: Zwei Fenster würden dieselbe JSON-Datei abwechselnd überschreiben.
+// Nur eine Instanz: Zwei Fenster würden dieselben Daten abwechselnd überschreiben.
 // Startet man FlungDo ein zweites Mal, beendet sich die neue Instanz sofort und
 // die laufende holt ihr Fenster nach vorne.
 const isPrimaryInstance = app.requestSingleInstanceLock()
@@ -68,21 +67,21 @@ function createWindow(): void {
   }
 }
 
-// Hier wird entschieden, welche Speicherung die App nutzt – später z. B. SqliteStorage.
+// Die Speicherung der App – welche, entscheidet createStorage (normalerweise SQLite).
 let storage: Storage | undefined
 
 app.whenReady().then(async () => {
   // Die zweite Instanz beendet sich gerade – sie darf die Datei nicht anfassen
   if (!isPrimaryInstance) return
-  const dataPath = join(app.getPath('userData'), DATA_FILE)
+  const dataDir = app.getPath('userData')
   // Daten aus der Zeit vor der Umbenennung (Ordner "todo") übernehmen –
   // nicht in einem Test-Ordner, sonst landen echte Daten in Testläufen
   if (!process.env['FLUNGDO_DATA_DIR']) {
-    await adoptLegacyFile(join(app.getPath('appData'), 'todo', DATA_FILE), dataPath)
+    await adoptLegacyFile(join(app.getPath('appData'), 'todo', JSON_FILE), join(dataDir, JSON_FILE))
   }
 
   const notices = new Notices()
-  storage = new JsonStorage(dataPath, { onNotice: (message) => notices.add(message) })
+  storage = await createStorage(dataDir, (message) => notices.add(message))
   registerIpcHandlers(storage, notices)
   createWindow()
 
