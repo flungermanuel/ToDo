@@ -177,6 +177,23 @@ describe('JsonStorage', () => {
     expect(JSON.parse(await readFile(file, 'utf-8'))).toEqual(sample)
   })
 
+  it('sichert eine ältere Version vor der Migration und speichert danach das neue Format', async () => {
+    await writeFile(file, JSON.stringify(v1File), 'utf-8')
+    const loaded = await new JsonStorage(file).load()
+    expect(loaded.version).toBe(4)
+
+    const files = (await readdir(dir)).sort()
+    expect(files).toHaveLength(2)
+    expect(files[0]).toMatch(/^todo-data\.backup-v1-\d{8}T\d{9}\.json$/)
+    // Die Sicherung ist das unveränderte Original, die Datei selbst schon migriert
+    expect(JSON.parse(await readFile(join(dir, files[0]!), 'utf-8'))).toEqual(v1File)
+    expect(JSON.parse(await readFile(file, 'utf-8'))).toEqual(loaded)
+
+    // Beim nächsten Start gibt es nichts mehr zu migrieren → keine weitere Sicherung
+    await new JsonStorage(file).load()
+    expect(await readdir(dir)).toHaveLength(2)
+  })
+
   it('legt kaputte Dateien als Backup ab und startet leer', async () => {
     await writeFile(file, '{ kaputt', 'utf-8')
     expect(await new JsonStorage(file).load()).toEqual(emptyAppData())

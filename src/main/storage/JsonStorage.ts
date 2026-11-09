@@ -1,6 +1,7 @@
 import { readFile, rename } from 'node:fs/promises'
-import { emptyAppData, type AppData } from '@shared/types'
+import { CURRENT_VERSION, emptyAppData, type AppData } from '@shared/types'
 import { writeFileAtomic } from './atomicWrite'
+import { createBackup } from './backup'
 import { migrate } from './migrations'
 import type { Storage } from './Storage'
 
@@ -11,6 +12,7 @@ import type { Storage } from './Storage'
  *   (siehe atomicWrite.ts). Stürzt die App mitten im Schreiben ab, bleibt die alte Datei heil.
  * - Nacheinander: Schreibvorgänge laufen in einer Warteschlange, damit sich zwei
  *   schnelle Saves nicht überholen.
+ * - Gesichert: Vor einer Migration auf ein neues Format wird die alte Datei kopiert.
  * - Robust: Ist die Datei unlesbar, wird sie als Backup beiseitegelegt und die
  *   App startet leer, statt abzustürzen.
  */
@@ -28,14 +30,27 @@ export class JsonStorage implements Storage {
       throw error
     }
 
+    let raw: unknown
+    let data: AppData
     try {
-      return migrate(JSON.parse(text))
+      raw = JSON.parse(text)
+      data = migrate(raw)
     } catch (error) {
       const backup = `${this.filePath}.corrupt-${Date.now()}`
       await rename(this.filePath, backup)
       console.error(`Daten unlesbar, Backup unter ${backup}:`, error)
       return emptyAppData()
     }
+
+    // Ältere Version: vor dem Überschreiben das Original sichern, dann den migrierten
+    // Stand sofort speichern – so wird nur einmal gesichert, nicht bei jedem Start.
+    // Scheitert die Sicherung, bricht das Laden ab, statt ungesichert umzuschreiben.
+    const version = (raw as { version: number }).version
+    if (version < CURRENT_VERSION) {
+      await createBackup(this.filePath, `v${version}`)
+      await this.save(data)
+    }
+    return data
   }
 
   save(data: AppData): Promise<void> {
