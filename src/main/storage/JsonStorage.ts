@@ -1,14 +1,14 @@
-import { readFile, rename, writeFile, mkdir } from 'node:fs/promises'
-import { dirname } from 'node:path'
+import { readFile, rename } from 'node:fs/promises'
 import { emptyAppData, type AppData } from '@shared/types'
+import { writeFileAtomic } from './atomicWrite'
 import { migrate } from './migrations'
 import type { Storage } from './Storage'
 
 /**
  * Speichert alles in einer JSON-Datei.
  *
- * - Atomar: erst in eine .tmp-Datei schreiben, dann umbenennen. Stürzt die App
- *   mitten im Schreiben ab, bleibt die alte Datei heil.
+ * - Atomar: erst in eine .tmp-Datei schreiben, auf die Platte zwingen, dann umbenennen
+ *   (siehe atomicWrite.ts). Stürzt die App mitten im Schreiben ab, bleibt die alte Datei heil.
  * - Nacheinander: Schreibvorgänge laufen in einer Warteschlange, damit sich zwei
  *   schnelle Saves nicht überholen.
  * - Robust: Ist die Datei unlesbar, wird sie als Backup beiseitegelegt und die
@@ -39,12 +39,7 @@ export class JsonStorage implements Storage {
   }
 
   save(data: AppData): Promise<void> {
-    const write = async () => {
-      await mkdir(dirname(this.filePath), { recursive: true })
-      const tmp = `${this.filePath}.tmp`
-      await writeFile(tmp, JSON.stringify(data, null, 2), 'utf-8')
-      await rename(tmp, this.filePath)
-    }
+    const write = () => writeFileAtomic(this.filePath, JSON.stringify(data, null, 2))
     // Auch nach einem fehlgeschlagenen Save sollen spätere Saves noch laufen
     const next = this.queue.then(write, write)
     this.queue = next.catch(() => {})
