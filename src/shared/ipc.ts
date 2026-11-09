@@ -8,6 +8,7 @@ export const IpcChannels = {
   dataExport: 'data:export',
   dataImportPick: 'data:import-pick',
   dataImportConfirm: 'data:import-confirm',
+  appNotices: 'app:notices',
   windowMinimize: 'window:minimize',
   windowToggleMaximize: 'window:toggle-maximize',
   windowClose: 'window:close'
@@ -48,6 +49,11 @@ export interface DataApi {
   confirmImport(): Promise<AppData>
 }
 
+export interface AppApi {
+  /** Hinweise aus Main (z. B. unlesbare Daten), jeder wird nur einmal geliefert. */
+  takeNotices(): Promise<string[]>
+}
+
 export interface WindowApi {
   minimize(): void
   toggleMaximize(): void
@@ -56,5 +62,6 @@ export interface WindowApi {
 
 export interface Api {
   data: DataApi
+  app: AppApi
   window: WindowApi
 }

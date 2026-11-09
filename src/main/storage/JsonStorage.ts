@@ -1,9 +1,15 @@
 import { readFile, rename } from 'node:fs/promises'
+import { basename } from 'node:path'
 import { CURRENT_VERSION, emptyAppData, type AppData } from '@shared/types'
 import { writeFileAtomic } from './atomicWrite'
 import { createBackup } from './backup'
 import { migrate } from './migrations'
 import type { Storage } from './Storage'
+
+export interface JsonStorageOptions {
+  /** Meldung für den Nutzer, z. B. wenn die Datei unlesbar war */
+  onNotice?: (message: string) => void
+}
 
 /**
  * Speichert alles in einer JSON-Datei.
@@ -19,7 +25,10 @@ import type { Storage } from './Storage'
 export class JsonStorage implements Storage {
   private queue: Promise<void> = Promise.resolve()
 
-  constructor(private readonly filePath: string) {}
+  constructor(
+    private readonly filePath: string,
+    private readonly options: JsonStorageOptions = {}
+  ) {}
 
   async load(): Promise<AppData> {
     let text: string
@@ -39,6 +48,10 @@ export class JsonStorage implements Storage {
       const backup = `${this.filePath}.corrupt-${Date.now()}`
       await rename(this.filePath, backup)
       console.error(`Daten unlesbar, Backup unter ${backup}:`, error)
+      this.options.onNotice?.(
+        `Die gespeicherten Daten waren unlesbar. Sie wurden als „${basename(backup)}“ ` +
+          'beiseitegelegt, FlungDo startet leer.'
+      )
       return emptyAppData()
     }
 

@@ -34,6 +34,17 @@ export async function loadData(): Promise<void> {
     console.error('Laden fehlgeschlagen:', error)
     setSnapshot({ ...snapshot, status: 'error' })
   }
+  await showNotices()
+}
+
+// Hinweise aus Main (z. B. "Daten waren unlesbar") bleiben stehen, bis man sie schließt
+async function showNotices(): Promise<void> {
+  try {
+    const notices = await window.api.app.takeNotices()
+    if (notices.length > 0) showToast(notices.join(' '), { tone: 'danger', durationMs: null })
+  } catch (error) {
+    console.error('Hinweise konnten nicht geladen werden:', error)
+  }
 }
 
 /** Aktueller Stand – für Aktionen, die nach einer Änderung etwas nachschlagen müssen */

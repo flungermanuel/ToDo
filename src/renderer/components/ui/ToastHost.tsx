@@ -23,11 +23,12 @@ export function ToastHost() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, transition: { duration: 0.15 } }}
             transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-            className="pointer-events-auto flex max-w-[min(480px,calc(100vw-32px))] items-center gap-3 rounded-full border border-separator bg-surface py-1.5 pr-1.5 pl-4 shadow-card"
+            className="pointer-events-auto flex max-w-[min(480px,calc(100vw-32px))] items-center gap-3 rounded-[18px] border border-separator bg-surface py-1.5 pr-1.5 pl-4 shadow-card"
           >
             <span
               className={cn(
-                'min-w-0 truncate text-[13px]',
+                // Lange Meldungen (z. B. mit Dateinamen) umbrechen statt abschneiden
+                'line-clamp-3 min-w-0 text-[13px]',
                 toast.tone === 'danger' && 'text-danger'
               )}
             >

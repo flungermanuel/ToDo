@@ -11,6 +11,9 @@ const api: Api = {
     pickImportFile: () => ipcRenderer.invoke(IpcChannels.dataImportPick),
     confirmImport: () => ipcRenderer.invoke(IpcChannels.dataImportConfirm)
   },
+  app: {
+    takeNotices: () => ipcRenderer.invoke(IpcChannels.appNotices)
+  },
   window: {
     minimize: () => ipcRenderer.send(IpcChannels.windowMinimize),
     toggleMaximize: () => ipcRenderer.send(IpcChannels.windowToggleMaximize),

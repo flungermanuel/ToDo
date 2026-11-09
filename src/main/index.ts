@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { app, BrowserWindow, nativeTheme } from 'electron'
 import { registerIpcHandlers } from './ipc'
+import { Notices } from './notices'
 import { JsonStorage } from './storage/JsonStorage'
 import { adoptLegacyFile } from './storage/legacy'
 import type { Storage } from './storage/Storage'
@@ -80,8 +81,9 @@ app.whenReady().then(async () => {
     await adoptLegacyFile(join(app.getPath('appData'), 'todo', DATA_FILE), dataPath)
   }
 
-  storage = new JsonStorage(dataPath)
-  registerIpcHandlers(storage)
+  const notices = new Notices()
+  storage = new JsonStorage(dataPath, { onNotice: (message) => notices.add(message) })
+  registerIpcHandlers(storage, notices)
   createWindow()
 
   app.on('activate', () => {

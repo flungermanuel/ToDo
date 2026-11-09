@@ -11,6 +11,7 @@ import {
   readImportFile,
   summarize
 } from './dataTransfer'
+import type { Notices } from './notices'
 import { migrate } from './storage/migrations'
 import type { Storage } from './storage/Storage'
 
@@ -21,8 +22,9 @@ function senderWindow(event: IpcMainEvent): BrowserWindow | null {
   return BrowserWindow.fromWebContents(event.sender)
 }
 
-export function registerIpcHandlers(storage: Storage): void {
+export function registerIpcHandlers(storage: Storage, notices: Notices): void {
   ipcMain.handle(IpcChannels.dataLoad, () => storage.load())
+  ipcMain.handle(IpcChannels.appNotices, () => notices.take())
 
   // Daten aus dem Renderer werden vor dem Speichern geprüft – die Datei soll
   // nie in einen ungültigen Zustand geraten.

@@ -196,7 +196,12 @@ describe('JsonStorage', () => {
 
   it('legt kaputte Dateien als Backup ab und startet leer', async () => {
     await writeFile(file, '{ kaputt', 'utf-8')
-    expect(await new JsonStorage(file).load()).toEqual(emptyAppData())
+    const notices: string[] = []
+    const storage = new JsonStorage(file, { onNotice: (message) => notices.push(message) })
+    expect(await storage.load()).toEqual(emptyAppData())
+    // Der Nutzer erfährt davon und weiß, wo die Datei liegt
+    expect(notices).toHaveLength(1)
+    expect(notices[0]).toMatch(/unlesbar.*todo-data\.json\.corrupt-\d+/)
     const files = await readdir(dir)
     expect(files).toHaveLength(1)
     expect(files[0]).toMatch(/^todo-data\.json\.corrupt-\d+$/)
