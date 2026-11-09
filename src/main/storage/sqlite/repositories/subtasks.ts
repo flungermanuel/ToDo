@@ -1,5 +1,6 @@
 import type { Subtask, Todo } from '@shared/types'
 import type { Db } from '../db'
+import type { Row } from '../diff'
 
 // Unteraufgaben liegen in einer eigenen Tabelle und zeigen per todo_id auf ihr Todo.
 // In AppData stecken sie dagegen im Todo – die Umwandlung passiert hier.
@@ -25,13 +26,24 @@ export function selectAllByTodo(db: Db): Map<string, Subtask[]> {
   return byTodo
 }
 
-export function insertAllOf(db: Db, todos: readonly Todo[]): void {
-  const insert = db.prepare(
-    'INSERT INTO subtasks (id, todo_id, titel, erledigt, position) VALUES (?, ?, ?, ?, ?)'
+/** Spaltenwerte aller Unteraufgaben (Position = innerhalb ihres Todos) */
+export function rows(todos: readonly Todo[]): Row[] {
+  return todos.flatMap((todo) =>
+    todo.unteraufgaben.map((s, position) => [s.id, todo.id, s.titel, s.erledigt ? 1 : 0, position])
   )
-  for (const todo of todos) {
-    todo.unteraufgaben.forEach((s, position) =>
-      insert.run(s.id, todo.id, s.titel, s.erledigt ? 1 : 0, position)
-    )
-  }
+}
+
+export function upsert(db: Db, rows: readonly Row[]): void {
+  const statement = db.prepare(
+    `INSERT INTO subtasks (id, todo_id, titel, erledigt, position) VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT (id) DO UPDATE SET
+       todo_id = excluded.todo_id, titel = excluded.titel, erledigt = excluded.erledigt,
+       position = excluded.position`
+  )
+  for (const row of rows) statement.run(...row)
+}
+
+export function deleteIds(db: Db, ids: readonly string[]): void {
+  const statement = db.prepare('DELETE FROM subtasks WHERE id = ?')
+  for (const id of ids) statement.run(id)
 }

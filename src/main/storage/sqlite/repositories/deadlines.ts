@@ -1,5 +1,6 @@
 import type { Deadline, Priority } from '@shared/types'
 import type { Db } from '../db'
+import type { Row } from '../diff'
 
 interface DeadlineRow {
   id: string
@@ -22,14 +23,32 @@ export function selectAll(db: Db): Deadline[] {
   }))
 }
 
-export function insertAll(db: Db, deadlines: readonly Deadline[]): void {
-  const insert = db.prepare(
+/** Spaltenwerte in der Reihenfolge von upsert() */
+export function rows(deadlines: readonly Deadline[]): Row[] {
+  return deadlines.map((d, position) => [
+    d.id,
+    d.titel,
+    d.datum,
+    d.erledigt ? 1 : 0,
+    d.prioritaet,
+    position
+  ])
+}
+
+export function upsert(db: Db, rows: readonly Row[]): void {
+  const statement = db.prepare(
     `INSERT INTO deadlines (id, titel, datum, erledigt, prioritaet, position)
-     VALUES (?, ?, ?, ?, ?, ?)`
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT (id) DO UPDATE SET
+       titel = excluded.titel, datum = excluded.datum, erledigt = excluded.erledigt,
+       prioritaet = excluded.prioritaet, position = excluded.position`
   )
-  deadlines.forEach((d, position) =>
-    insert.run(d.id, d.titel, d.datum, d.erledigt ? 1 : 0, d.prioritaet, position)
-  )
+  for (const row of rows) statement.run(...row)
+}
+
+export function deleteIds(db: Db, ids: readonly string[]): void {
+  const statement = db.prepare('DELETE FROM deadlines WHERE id = ?')
+  for (const id of ids) statement.run(id)
 }
 
 export function deleteAll(db: Db): void {
