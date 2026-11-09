@@ -19,7 +19,9 @@ const require = createRequire(import.meta.url)
 /** Pfad zur Electron-Programmdatei (das npm-Paket "electron" liefert ihn als String) */
 const ELECTRON = require('electron')
 const ROOT = resolve(import.meta.dirname, '..')
-const PORT = 9333
+// Jeder Start bekommt einen eigenen Debug-Port – sonst könnte sich das Skript mit einer
+// gerade beendeten vorigen Instanz verbinden, die den Port noch hält
+let launchCount = 0
 const REPEAT = 5
 
 const seedDir = process.argv[2]
@@ -29,8 +31,10 @@ if (!seedDir) {
   process.exit(1)
 }
 
+/** Median; fehlende Messwerte (null) werden ausgelassen */
 const median = (values) => {
-  const sorted = [...values].sort((a, b) => a - b)
+  const sorted = values.filter((v) => typeof v === 'number').sort((a, b) => a - b)
+  if (sorted.length === 0) return NaN
   const mid = Math.floor(sorted.length / 2)
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
 }
@@ -39,6 +43,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms))
 /** Startet die App und gibt Steuerfunktionen zurück. */
 async function launch(dataDir, storage) {
   const perfLines = []
+  const port = 9400 + (launchCount++ % 500)
   const startedAt = Date.now()
   // Chromium drosselt Timer und Frames in versteckten oder verdeckten Fenstern (das
   // Fenster ist bis ready-to-show versteckt, und beim Messen liegt evtl. etwas darüber).
@@ -48,7 +53,7 @@ async function launch(dataDir, storage) {
     '--disable-renderer-backgrounding',
     '--disable-backgrounding-occluded-windows'
   ]
-  const child = spawn(ELECTRON, ['.', `--remote-debugging-port=${PORT}`, ...chromiumFlags], {
+  const child = spawn(ELECTRON, ['.', `--remote-debugging-port=${port}`, ...chromiumFlags], {
     cwd: ROOT,
     env: {
       ...process.env,
@@ -67,7 +72,7 @@ async function launch(dataDir, storage) {
   let page
   for (let i = 0; i < 100 && !page; i++) {
     try {
-      const targets = await (await fetch(`http://127.0.0.1:${PORT}/json`)).json()
+      const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json()
       page = targets.find((t) => t.type === 'page')
     } catch {
       /* noch nicht bereit */
@@ -89,6 +94,13 @@ async function launch(dataDir, storage) {
     const msg = JSON.parse(event.data)
     pending.get(msg.id)?.(msg)
     pending.delete(msg.id)
+  })
+  // Bricht die Verbindung ab, sollen wartende Abfragen scheitern statt ewig zu hängen
+  ws.addEventListener('close', () => {
+    for (const handle of pending.values()) {
+      handle({ result: { exceptionDetails: { text: 'DevTools-Verbindung geschlossen' } } })
+    }
+    pending.clear()
   })
   /** Führt JS im Fenster aus (darf ein Promise zurückgeben) und liefert das Ergebnis */
   const evaluate = (expression) =>
@@ -163,8 +175,12 @@ const clickAndPaint = (selectorJs) => `(async () => {
   const button = ${selectorJs}
   const start = performance.now()
   button.click()
-  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
-  return performance.now() - start
+  // Selten kommt kein Frame (z. B. Fenster kurz verdeckt) – dann nach 3 s ohne Messwert weiter
+  const painted = await Promise.race([
+    new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(true)))),
+    new Promise((r) => setTimeout(() => r(false), 3000))
+  ])
+  return painted ? performance.now() - start : null
 })()`
 
 // Im Fenster: erstes offenes Todo abhaken, 1,5 s lang "long tasks" (Hauptthread > 50 ms
