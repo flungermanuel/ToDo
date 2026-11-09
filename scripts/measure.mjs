@@ -40,7 +40,15 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms))
 async function launch(dataDir, storage) {
   const perfLines = []
   const startedAt = Date.now()
-  const child = spawn(ELECTRON, ['.', `--remote-debugging-port=${PORT}`], {
+  // Chromium drosselt Timer und Frames in versteckten oder verdeckten Fenstern (das
+  // Fenster ist bis ready-to-show versteckt, und beim Messen liegt evtl. etwas darüber).
+  // Ein Nutzer sieht sein Fenster – also für die Messung abschalten.
+  const chromiumFlags = [
+    '--disable-background-timer-throttling',
+    '--disable-renderer-backgrounding',
+    '--disable-backgrounding-occluded-windows'
+  ]
+  const child = spawn(ELECTRON, ['.', `--remote-debugging-port=${PORT}`, ...chromiumFlags], {
     cwd: ROOT,
     env: {
       ...process.env,
@@ -69,7 +77,12 @@ async function launch(dataDir, storage) {
   if (!page) throw new Error('App hat sich nicht gemeldet')
 
   const ws = new WebSocket(page.webSocketDebuggerUrl)
-  await new Promise((r) => ws.addEventListener('open', r, { once: true }))
+  await new Promise((resolveOpen, reject) => {
+    ws.addEventListener('open', resolveOpen, { once: true })
+    ws.addEventListener('error', () => reject(new Error('DevTools-Verbindung fehlgeschlagen')), {
+      once: true
+    })
+  })
   let nextId = 0
   const pending = new Map()
   ws.addEventListener('message', (event) => {
@@ -118,13 +131,19 @@ async function launch(dataDir, storage) {
 }
 
 // Im Fenster: bis zur sichtbaren Oberfläche mit Daten warten (ein Todo ist zu sehen)
-// und den absoluten Zeitpunkt zurückgeben. setTimeout statt requestAnimationFrame,
-// weil das Fenster bis ready-to-show versteckt ist und dort keine Frames laufen.
+// und den absoluten Zeitpunkt zurückgeben. MutationObserver meldet sich sofort, wenn
+// React das erste Todo einfügt – ohne Abfrage per Timer.
 const WAIT_FOR_UI = `new Promise((resolve) => {
-  const check = () => document.querySelector('[role=checkbox]')
-    ? resolve(performance.timeOrigin + performance.now())
-    : setTimeout(check, 5)
-  check()
+  const found = () => document.querySelector('[role=checkbox]')
+  const done = () => resolve(performance.timeOrigin + performance.now())
+  if (found()) return done()
+  const observer = new MutationObserver(() => {
+    if (found()) {
+      observer.disconnect()
+      done()
+    }
+  })
+  observer.observe(document, { childList: true, subtree: true })
 })`
 
 /** Millisekunden vom Programmstart bis zur sichtbaren Oberfläche mit Daten */
@@ -148,6 +167,18 @@ const clickAndPaint = (selectorJs) => `(async () => {
   return performance.now() - start
 })()`
 
+// Im Fenster: erstes offenes Todo abhaken, 1,5 s lang "long tasks" (Hauptthread > 50 ms
+// blockiert) sammeln und deren Gesamtdauer zurückgeben
+const TOGGLE_AND_MEASURE_BLOCKING = `(async () => {
+  const tasks = []
+  const observer = new PerformanceObserver((list) => tasks.push(...list.getEntries()))
+  observer.observe({ type: 'longtask' })
+  document.querySelector('[role=checkbox][aria-checked=false]').click()
+  await new Promise((r) => setTimeout(r, 1500))
+  observer.disconnect()
+  return tasks.reduce((sum, t) => sum + t.duration, 0)
+})()`
+
 const buttons = {
   day: `[...document.querySelectorAll('button')].find((b) => b.textContent === 'Tag')`,
   week: `[...document.querySelectorAll('button')].find((b) => b.textContent === 'Woche')`,
@@ -168,6 +199,7 @@ async function measureOne(seedFile, storage) {
   const startup = []
   const load = []
   const save = []
+  const blocking = []
   const views = { day: [], week: [], month: [], calendarWeek: [] }
   for (let run = 0; run < starts; run++) {
     const app = await launch(dir, storage)
@@ -176,14 +208,14 @@ async function measureOne(seedFile, storage) {
 
     if (run === 0) {
       // Speichern: ein Todo abhaken und wieder zurück; gemessen wird in Main (inkl. Prüfung)
-      // Jedes Mal das erste offene Todo abhaken (oben stehen genug überfällige). Erledigte
-      // verschwinden animiert aus der Liste – bis dahin ignoriert ihr Häkchen weitere Klicks,
-      // deshalb vor dem nächsten Klick die Animation abwarten.
+      // Jedes Mal das erste offene Todo abhaken (oben stehen genug überfällige) und dabei
+      // messen, wie lange der Renderer blockiert ist (Summe der "long tasks" > 50 ms).
+      // Danach 1,5 s Ruhe: Die App hakt erst nach 450 ms wirklich ab und speichert 200 ms
+      // später – kämen Klicks schneller, würden mehrere zu einem Speichern zusammengefasst.
       for (let i = 0; i < REPEAT; i++) {
         const before = app.perfLines.length
-        await app.evaluate(`document.querySelector('[role=checkbox][aria-checked=false]').click()`)
+        blocking.push(await app.evaluate(TOGGLE_AND_MEASURE_BLOCKING))
         save.push(await app.nextPerf('save', before))
-        await wait(800)
       }
       // Ansichten umschalten
       for (let i = 0; i < REPEAT; i++) {
@@ -202,6 +234,7 @@ async function measureOne(seedFile, storage) {
     startup: median(startup),
     load: median(load),
     save: median(save),
+    blocking: median(blocking),
     day: median(views.day),
     week: median(views.week),
     month: median(views.month),
@@ -227,13 +260,13 @@ async function main() {
   await writeFile(join(resolve(seedDir), 'results.json'), JSON.stringify(results, null, 2))
 
   console.log(
-    '\n| Todos | Speicher | 1. Start | Start | Laden (Main) | Speichern | Tag | Woche | Monat | Kal.-Woche |'
+    '\n| Todos | Speicher | 1. Start | Start | Laden (Main) | Speichern (Main) | Abhaken blockiert UI | Tag | Woche | Monat | Kal.-Woche |'
   )
-  console.log('|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|')
+  console.log('|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|')
   for (const r of results) {
     console.log(
       `| ${r.size.toLocaleString('de-DE')} | ${r.storage === 'json' ? 'JSON' : 'SQLite'} | ${fmt(r.firstStart)} | ` +
-        `${fmt(r.startup)} | ${fmt(r.load)} | ${fmt(r.save)} | ${fmt(r.day)} | ${fmt(r.week)} | ` +
+        `${fmt(r.startup)} | ${fmt(r.load)} | ${fmt(r.save)} | ${fmt(r.blocking)} | ${fmt(r.day)} | ${fmt(r.week)} | ` +
         `${fmt(r.month)} | ${fmt(r.calendarWeek)} |`
     )
   }
