@@ -1,5 +1,4 @@
 import { readFile } from 'node:fs/promises'
-import type { DataSummary } from '@shared/ipc'
 import type { AppData } from '@shared/types'
 import { writeFileAtomic } from './storage/atomicWrite'
 import { migrate, UnreadableDataError } from './storage/migrations'
@@ -52,16 +51,6 @@ export async function readImportFile(filePath: string): Promise<AppData> {
 export async function importData(storage: Storage, data: AppData): Promise<void> {
   await storage.backup('import')
   await storage.save(data)
-}
-
-export function summarize(data: AppData): DataSummary {
-  return {
-    categories: data.categories.length,
-    todos: data.todos.length,
-    subtasks: data.todos.reduce((sum, t) => sum + t.unteraufgaben.length, 0),
-    deadlines: data.deadlines.length,
-    exams: data.exams.length
-  }
 }
 
 /** Vorschlag für den Dateinamen, z. B. "FlungDo-Export-2026-11-09.json" */

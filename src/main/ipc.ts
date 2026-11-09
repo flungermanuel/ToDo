@@ -3,15 +3,9 @@ import { app, BrowserWindow, dialog, ipcMain, type IpcMainEvent } from 'electron
 import type { OpenDialogOptions, SaveDialogOptions } from 'electron'
 import { IpcChannels, type ExportResult, type ImportPreview } from '@shared/ipc'
 import type { AppData } from '@shared/types'
-import {
-  exportData,
-  exportFileName,
-  importData,
-  ImportError,
-  readImportFile,
-  summarize
-} from './dataTransfer'
+import { exportData, exportFileName, importData, ImportError, readImportFile } from './dataTransfer'
 import type { Notices } from './notices'
+import { countData } from './storage/counts'
 import { migrate } from './storage/migrations'
 import type { Storage } from './storage/Storage'
 
@@ -71,7 +65,7 @@ export function registerIpcHandlers(storage: Storage, notices: Notices): void {
       if (error instanceof ImportError) return { status: 'invalid', message: error.message }
       throw error
     }
-    return { status: 'ready', fileName: basename(filePath), summary: summarize(pendingImport) }
+    return { status: 'ready', fileName: basename(filePath), summary: countData(pendingImport) }
   })
 
   ipcMain.handle(IpcChannels.dataImportConfirm, async (): Promise<AppData> => {

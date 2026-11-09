@@ -8,9 +8,9 @@ import {
   exportFileName,
   importData,
   ImportError,
-  readImportFile,
-  summarize
+  readImportFile
 } from '../dataTransfer'
+import { countData } from '../storage/counts'
 import { JsonStorage } from '../storage/JsonStorage'
 import { migrate } from '../storage/migrations'
 
@@ -117,7 +117,7 @@ describe('Import', () => {
         ]
       }
     ]
-    expect(summarize(data)).toEqual({
+    expect(countData(data)).toEqual({
       categories: 2,
       todos: 1,
       subtasks: 2,
