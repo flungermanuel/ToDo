@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Settings } from 'lucide-react'
 import type { AppData } from '@shared/types'
 import { categoryActions } from '@renderer/state/actions'
 import { CATEGORY_COLOR_META } from '@renderer/lib/categoryColors'
 import { AddRow } from '@renderer/components/ui/AddRow'
 import { CategoryMenu } from '@renderer/components/categories/CategoryMenu'
 import { RenameCategoryInput } from '@renderer/components/categories/RenameCategoryInput'
+import { DataSettings } from './DataSettings'
 
 interface SidebarProps {
   open: boolean
@@ -16,7 +16,7 @@ interface SidebarProps {
 
 // Seitenleiste, die über das Hamburger-Menü von links hereinfährt.
 // Breite: 30 % des Fensters, mindestens 260 px, höchstens 380 px.
-// Inhalt vorerst: Kategorien verwalten. Platz für mehr ist unten vorgesehen.
+// Inhalt: Kategorien verwalten, darunter Einstellungen (Daten exportieren/importieren).
 export function Sidebar({ open, onClose, data }: SidebarProps) {
   const panelRef = useRef<HTMLElement>(null)
 
@@ -66,16 +66,7 @@ export function Sidebar({ open, onClose, data }: SidebarProps) {
             <CategoryList data={data} />
 
             <footer className="border-t border-separator p-2">
-              <button
-                type="button"
-                disabled
-                title="Kommt bald"
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-fg-subtle"
-              >
-                <Settings className="size-4" />
-                Einstellungen
-                <span className="ml-auto text-[11px]">bald</span>
-              </button>
+              <DataSettings />
             </footer>
           </motion.aside>
         </>

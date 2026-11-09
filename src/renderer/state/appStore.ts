@@ -58,14 +58,32 @@ function scheduleSave(): void {
 }
 
 function flushSave(): void {
+  void flushPendingSave()
+}
+
+/**
+ * Schreibt eine noch wartende Änderung sofort und wartet, bis sie gespeichert ist –
+ * z. B. vor einem Export, damit die letzte Änderung mit drin ist.
+ */
+export async function flushPendingSave(): Promise<void> {
   if (saveTimer === undefined) return
   clearTimeout(saveTimer)
   saveTimer = undefined
-  save()
+  await save()
 }
 
-function save(): void {
-  window.api.data.save(snapshot.data).then(
+/**
+ * Ersetzt den kompletten Stand durch Daten, die Main schon gespeichert hat (Import).
+ * Deshalb wird hier nicht noch einmal gespeichert.
+ */
+export function replaceData(data: AppData): void {
+  clearTimeout(saveTimer)
+  saveTimer = undefined
+  setSnapshot({ data, status: 'ready' })
+}
+
+function save(): Promise<void> {
+  return window.api.data.save(snapshot.data).then(
     () => {
       // Hat es nach einem Fehler wieder geklappt, verschwindet der Hinweis
       if (saveErrorToast !== undefined) hideToast(saveErrorToast)

@@ -25,10 +25,14 @@ export interface DataSummary {
   exams: number
 }
 
+export interface ReadyImportPreview {
+  status: 'ready'
+  fileName: string
+  summary: DataSummary
+}
+
 export type ImportPreview =
-  | { status: 'ready'; fileName: string; summary: DataSummary }
-  | { status: 'canceled' }
-  | { status: 'invalid'; message: string }
+  ReadyImportPreview | { status: 'canceled' } | { status: 'invalid'; message: string }
 
 export interface DataApi {
   load(): Promise<AppData>
