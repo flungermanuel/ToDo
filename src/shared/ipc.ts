@@ -5,14 +5,20 @@ import type { AppData } from './types'
 export const IpcChannels = {
   dataLoad: 'data:load',
   dataSave: 'data:save',
+  dataExport: 'data:export',
   windowMinimize: 'window:minimize',
   windowToggleMaximize: 'window:toggle-maximize',
   windowClose: 'window:close'
 } as const
 
+/** Ergebnis eines Exports. Den Pfad sieht der Renderer nur als Anzeige-Text. */
+export type ExportResult = { status: 'saved'; fileName: string } | { status: 'canceled' }
+
 export interface DataApi {
   load(): Promise<AppData>
   save(data: AppData): Promise<void>
+  /** Öffnet einen Speichern-Dialog und schreibt den gespeicherten Stand als JSON-Datei. */
+  exportToFile(): Promise<ExportResult>
 }
 
 export interface WindowApi {

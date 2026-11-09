@@ -6,7 +6,8 @@ import { IpcChannels, type Api } from '@shared/ipc'
 const api: Api = {
   data: {
     load: () => ipcRenderer.invoke(IpcChannels.dataLoad),
-    save: (data) => ipcRenderer.invoke(IpcChannels.dataSave, data)
+    save: (data) => ipcRenderer.invoke(IpcChannels.dataSave, data),
+    exportToFile: () => ipcRenderer.invoke(IpcChannels.dataExport)
   },
   window: {
     minimize: () => ipcRenderer.send(IpcChannels.windowMinimize),
