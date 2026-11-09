@@ -13,8 +13,10 @@ const DATA_FILE = 'todo-data.json'
 
 // Daten-Ordner fest auf %APPDATA%/FlungDo setzen – unabhängig davon, wie Electron
 // den Namen gerade ableitet (Dev-Modus vs. gebaute .exe).
+// FLUNGDO_DATA_DIR lenkt die Daten für Tests und Messungen in einen anderen Ordner,
+// damit die echten Daten nie angefasst werden.
 app.setName(APP_NAME)
-app.setPath('userData', join(app.getPath('appData'), APP_NAME))
+app.setPath('userData', process.env['FLUNGDO_DATA_DIR'] || join(app.getPath('appData'), APP_NAME))
 // Muss zur appId in electron-builder.yml passen: Darüber ordnet Windows das Fenster
 // der installierten Verknüpfung zu (richtiges Symbol in der Taskleiste).
 app.setAppUserModelId('de.flunger.flungdo')
@@ -72,8 +74,11 @@ app.whenReady().then(async () => {
   // Die zweite Instanz beendet sich gerade – sie darf die Datei nicht anfassen
   if (!isPrimaryInstance) return
   const dataPath = join(app.getPath('userData'), DATA_FILE)
-  // Daten aus der Zeit vor der Umbenennung (Ordner "todo") übernehmen
-  await adoptLegacyFile(join(app.getPath('appData'), 'todo', DATA_FILE), dataPath)
+  // Daten aus der Zeit vor der Umbenennung (Ordner "todo") übernehmen –
+  // nicht in einem Test-Ordner, sonst landen echte Daten in Testläufen
+  if (!process.env['FLUNGDO_DATA_DIR']) {
+    await adoptLegacyFile(join(app.getPath('appData'), 'todo', DATA_FILE), dataPath)
+  }
 
   storage = new JsonStorage(dataPath)
   registerIpcHandlers(storage)
