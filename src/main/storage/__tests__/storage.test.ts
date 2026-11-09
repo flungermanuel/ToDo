@@ -157,24 +157,12 @@ describe('JsonStorage', () => {
     await rm(dir, { recursive: true, force: true })
   })
 
-  it('startet leer, wenn noch keine Datei existiert', async () => {
-    expect(await new JsonStorage(file).load()).toEqual(emptyAppData())
-  })
+  // Speichern/Laden, Reihenfolge, Sonderzeichen usw. prüft der Storage-Vertrag
+  // (JsonStorage.contract.test.ts). Hier nur, was JSON-spezifisch ist.
 
-  it('speichert und lädt dieselben Daten', async () => {
-    const storage = new JsonStorage(file)
-    await storage.save(sample)
-    expect(await new JsonStorage(file).load()).toEqual(sample)
-    // keine .tmp-Datei bleibt liegen
+  it('lässt nach dem Speichern keine .tmp-Datei liegen', async () => {
+    await new JsonStorage(file).save(sample)
     expect(await readdir(dir)).toEqual(['todo-data.json'])
-  })
-
-  it('der letzte von mehreren schnellen Saves gewinnt', async () => {
-    const storage = new JsonStorage(file)
-    void storage.save(emptyAppData())
-    void storage.save(sample)
-    await storage.flush()
-    expect(JSON.parse(await readFile(file, 'utf-8'))).toEqual(sample)
   })
 
   it('sichert eine ältere Version vor der Migration und speichert danach das neue Format', async () => {
