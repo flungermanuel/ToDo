@@ -1,0 +1,34 @@
+# Baut bei einem Versions-Tag (z. B. v2.0) den Windows-Installer und hängt ihn an ein
+# GitHub Release. Nutzt die gh-CLI, die auf den GitHub-Runnern vorinstalliert ist –
+# keine zusätzliche Action nötig.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # Release anlegen und Datei hochladen
+
+jobs:
+  windows-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Vor dem Veröffentlichen dieselben Prüfungen wie in der CI
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run dist
+      - name: GitHub Release anlegen
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/FlungDo-Setup-*.exe \
+            --title "FlungDo $GITHUB_REF_NAME" \
+            --generate-notes
