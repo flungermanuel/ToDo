@@ -56,7 +56,6 @@ nachvollziehbaren Code.
 | Stufe | Inhalt |
 |---|---|
 | KI-Eingabe | Freitext wie „Statistik-Abgabe Freitag, wichtig“ wird per `parseInput(text)` in ein Todo/eine Deadline umgewandelt – als austauschbare Funktion |
-| Speicherung | Wechsel von JSON auf SQLite möglich, ohne den Rest der App anzufassen |
 | Später denkbar | Wiederholungen, Erinnerungen, Uhrzeiten, Drag & Drop zwischen Tagen, Sync |
 
 ---
@@ -69,7 +68,7 @@ nachvollziehbaren Code.
 | Oberfläche | React + Vite + TypeScript |
 | Styling | Tailwind CSS, shadcn/ui, Lucide Icons, Framer Motion |
 | Tests / Qualität | Vitest, ESLint, Prettier |
-| Daten | Eine JSON-Datei: `%APPDATA%/FlungDo/todo-data.json` |
+| Daten | SQLite-Datenbank: `%APPDATA%/FlungDo/flungdo.db` (eingebautes `node:sqlite`, reines SQL) |
 
 ### Architektur – drei getrennte Schichten
 
@@ -83,7 +82,7 @@ nachvollziehbaren Code.
 │                              │  gruppieren, überfällig prüfen, Kalender
 └──────────────┬───────────────┘
 ┌──────────────▼───────────────┐
-│ Speicherung (src/main/storage)│ Interface load/save, aktuell JSON
+│ Speicherung (src/main/storage)│ Interface load/save, SQLite (seit 2.0)
 └──────────────────────────────┘
 ```
 
@@ -105,14 +104,19 @@ AppData  = { version: 4, categories: Category[], todos: Todo[], deadlines: Deadl
              exams: Exam[] }
 ```
 
-Die Datei ist versioniert; ältere Versionen werden beim Start automatisch migriert.
+Das Datenformat ist versioniert; ältere Stände (auch JSON-Dateien aus 1.x) werden beim Start
+automatisch migriert und vorher gesichert. Details: `docs/architecture.md`.
 
 ---
 
 ## Andocken für andere Projekte
 
-- **Daten lesen:** `todo-data.json` ist schlichtes, dokumentiertes JSON (siehe oben) –
-  andere Tools können es lesen. Schreiben nur, während FlungDo geschlossen ist.
+- **Daten lesen:** Über „Einstellungen → Daten exportieren“ entsteht eine schlichte,
+  dokumentierte JSON-Datei (Format siehe oben), die andere Tools lesen können. Die Datenbank
+  `flungdo.db` lässt sich mit jedem SQLite-Werkzeug öffnen. Schreiben nur, während FlungDo
+  geschlossen ist.
+- **Daten einspielen:** Eine JSON-Datei in diesem Format lässt sich über „Daten importieren“
+  übernehmen (mit Nachfrage und automatischer Sicherung).
 - **Eingabe von außen:** Die geplante Funktion `parseInput(text)` ist die vorgesehene
   Schnittstelle, um Text (z. B. aus einem KI-Assistenten) in Todos/Deadlines zu verwandeln.
 - **Logik wiederverwenden:** `src/core` hat keine UI- oder Datei-Abhängigkeiten und kann
@@ -120,5 +124,6 @@ Die Datei ist versioniert; ältere Versionen werden beim Start automatisch migri
 
 ## Status
 
-Aktuelle Version: **1.3.0** – Todos, Deadlines, Prüfungen, Kategorien, Tages-/Wochenansicht,
-Kalender und Windows-Installer sind fertig. Die KI-Eingabe folgt.
+Aktuelle Version: **2.0.0**: Speicherung in SQLite, Export/Import, automatische Sicherungen,
+Tests und CI. Todos, Deadlines, Prüfungen, Kategorien, Tages-/Wochenansicht, Kalender und
+Windows-Installer sind fertig. Die KI-Eingabe folgt.
