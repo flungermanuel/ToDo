@@ -1,8 +1,16 @@
 import { basename, join } from 'node:path'
 import { app, BrowserWindow, dialog, ipcMain, type IpcMainEvent } from 'electron'
-import type { SaveDialogOptions } from 'electron'
-import { IpcChannels, type ExportResult } from '@shared/ipc'
-import { exportData, exportFileName } from './dataTransfer'
+import type { OpenDialogOptions, SaveDialogOptions } from 'electron'
+import { IpcChannels, type ExportResult, type ImportPreview } from '@shared/ipc'
+import type { AppData } from '@shared/types'
+import {
+  exportData,
+  exportFileName,
+  importData,
+  ImportError,
+  readImportFile,
+  summarize
+} from './dataTransfer'
 import { migrate } from './storage/migrations'
 import type { Storage } from './storage/Storage'
 
@@ -35,6 +43,41 @@ export function registerIpcHandlers(storage: Storage): void {
     if (canceled || !filePath) return { status: 'canceled' }
     await exportData(storage, filePath)
     return { status: 'saved', fileName: basename(filePath) }
+  })
+
+  // Zwischen Vorschau und Bestätigung liegen die geprüften Daten hier – der Renderer
+  // muss sie nicht hin- und herschicken und kann sie nicht verändern.
+  let pendingImport: AppData | undefined
+
+  ipcMain.handle(IpcChannels.dataImportPick, async (event): Promise<ImportPreview> => {
+    pendingImport = undefined
+    const options: OpenDialogOptions = {
+      title: 'Daten importieren',
+      defaultPath: app.getPath('documents'),
+      filters: [JSON_FILTER],
+      properties: ['openFile']
+    }
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const { canceled, filePaths } = win
+      ? await dialog.showOpenDialog(win, options)
+      : await dialog.showOpenDialog(options)
+    const filePath = filePaths[0]
+    if (canceled || !filePath) return { status: 'canceled' }
+    try {
+      pendingImport = await readImportFile(filePath)
+    } catch (error) {
+      if (error instanceof ImportError) return { status: 'invalid', message: error.message }
+      throw error
+    }
+    return { status: 'ready', fileName: basename(filePath), summary: summarize(pendingImport) }
+  })
+
+  ipcMain.handle(IpcChannels.dataImportConfirm, async (): Promise<AppData> => {
+    const data = pendingImport
+    if (!data) throw new Error('Kein Import ausgewählt')
+    pendingImport = undefined
+    await importData(storage, data)
+    return data
   })
 
   ipcMain.on(IpcChannels.windowMinimize, (event) => senderWindow(event)?.minimize())

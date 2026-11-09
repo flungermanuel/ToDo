@@ -64,6 +64,16 @@ export class JsonStorage implements Storage {
   flush(): Promise<void> {
     return this.queue
   }
+
+  async backup(tag: string): Promise<string | null> {
+    await this.flush()
+    try {
+      return await createBackup(this.filePath, tag)
+    } catch (error) {
+      if (isNotFound(error)) return null
+      throw error
+    }
+  }
 }
 
 function isNotFound(error: unknown): boolean {

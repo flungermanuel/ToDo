@@ -7,7 +7,9 @@ const api: Api = {
   data: {
     load: () => ipcRenderer.invoke(IpcChannels.dataLoad),
     save: (data) => ipcRenderer.invoke(IpcChannels.dataSave, data),
-    exportToFile: () => ipcRenderer.invoke(IpcChannels.dataExport)
+    exportToFile: () => ipcRenderer.invoke(IpcChannels.dataExport),
+    pickImportFile: () => ipcRenderer.invoke(IpcChannels.dataImportPick),
+    confirmImport: () => ipcRenderer.invoke(IpcChannels.dataImportConfirm)
   },
   window: {
     minimize: () => ipcRenderer.send(IpcChannels.windowMinimize),
