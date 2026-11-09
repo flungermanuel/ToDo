@@ -15,6 +15,11 @@ interface TodoGroupProps {
   defaultCollapsed?: boolean
 }
 
+// Lange Gruppen zeigen zuerst nur so viele Todos – jede Zeile ist eine animierte
+// Komponente, und Hunderte davon machen das Umschalten und Abhaken spürbar langsam
+// (gemessen in docs/performance.md). Der Rest kommt per Klick dazu.
+export const GROUP_PREVIEW_LIMIT = 50
+
 // Einfache einklappbare Gruppe ohne Kategorie-Menü – für "Überfällig" und "Ohne Datum".
 export function TodoGroup({
   title,
@@ -24,6 +29,9 @@ export function TodoGroup({
   defaultCollapsed = false
 }: TodoGroupProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed)
+  const [showAll, setShowAll] = useState(false)
+  const visible = showAll ? todos : todos.slice(0, GROUP_PREVIEW_LIMIT)
+  const hidden = todos.length - visible.length
 
   return (
     <section className="mt-1">
@@ -55,10 +63,23 @@ export function TodoGroup({
             className="overflow-hidden"
           >
             <AnimatePresence initial={false}>
-              {todos.map((todo) => (
+              {visible.map((todo) => (
                 <TodoItem key={todo.id} todo={todo} {...list} />
               ))}
             </AnimatePresence>
+            {todos.length > GROUP_PREVIEW_LIMIT && (
+              <li>
+                {/* Gleiche Optik wie "N ältere erledigte anzeigen" bei den Deadlines */}
+                <button
+                  type="button"
+                  onClick={() => setShowAll((v) => !v)}
+                  aria-expanded={showAll}
+                  className="w-full rounded-lg px-3 py-1 pl-[42px] text-left text-xs text-fg-subtle hover:bg-hover hover:text-fg-muted"
+                >
+                  {showAll ? 'Weniger anzeigen' : `${hidden} weitere anzeigen`}
+                </button>
+              </li>
+            )}
           </motion.ul>
         )}
       </AnimatePresence>
