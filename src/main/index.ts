@@ -2,7 +2,9 @@ import { join } from 'node:path'
 import { app, BrowserWindow, nativeTheme } from 'electron'
 import { registerIpcHandlers } from './ipc'
 import { Notices } from './notices'
+import { perfMark } from './perf'
 import { createStorage, JSON_FILE } from './storage/createStorage'
+import { JsonStorage } from './storage/JsonStorage'
 import { adoptLegacyFile } from './storage/legacy'
 import type { Storage } from './storage/Storage'
 
@@ -57,7 +59,10 @@ function createWindow(): void {
   })
 
   // Erst anzeigen, wenn der Inhalt gerendert ist – verhindert weißes Aufblitzen.
-  win.once('ready-to-show', () => win.show())
+  win.once('ready-to-show', () => {
+    perfMark('ready-to-show')
+    win.show()
+  })
 
   // Im Dev-Modus liefert Vite den Renderer mit Hot Reload aus.
   if (!app.isPackaged && process.env['ELECTRON_RENDERER_URL']) {
@@ -81,7 +86,13 @@ app.whenReady().then(async () => {
   }
 
   const notices = new Notices()
-  storage = await createStorage(dataDir, (message) => notices.add(message))
+  const onNotice = (message: string) => notices.add(message)
+  // FLUNGDO_STORAGE=json nur für Vergleichsmessungen (docs/performance.md)
+  storage =
+    process.env['FLUNGDO_STORAGE'] === 'json'
+      ? new JsonStorage(join(dataDir, JSON_FILE), { onNotice })
+      : await createStorage(dataDir, onNotice)
+  perfMark('storage-ready')
   registerIpcHandlers(storage, notices)
   createWindow()
 

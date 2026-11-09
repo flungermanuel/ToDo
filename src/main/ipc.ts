@@ -5,6 +5,7 @@ import { IpcChannels, type ExportResult, type ImportPreview } from '@shared/ipc'
 import type { AppData } from '@shared/types'
 import { exportData, exportFileName, importData, ImportError, readImportFile } from './dataTransfer'
 import type { Notices } from './notices'
+import { perfTime } from './perf'
 import { countData } from './storage/counts'
 import { migrate } from './storage/migrations'
 import type { Storage } from './storage/Storage'
@@ -17,12 +18,14 @@ function senderWindow(event: IpcMainEvent): BrowserWindow | null {
 }
 
 export function registerIpcHandlers(storage: Storage, notices: Notices): void {
-  ipcMain.handle(IpcChannels.dataLoad, () => storage.load())
+  ipcMain.handle(IpcChannels.dataLoad, () => perfTime('load', () => storage.load()))
   ipcMain.handle(IpcChannels.appNotices, () => notices.take())
 
   // Daten aus dem Renderer werden vor dem Speichern geprüft – die Datei soll
   // nie in einen ungültigen Zustand geraten.
-  ipcMain.handle(IpcChannels.dataSave, (_event, data: unknown) => storage.save(migrate(data)))
+  ipcMain.handle(IpcChannels.dataSave, (_event, data: unknown) =>
+    perfTime('save', () => storage.save(migrate(data)))
+  )
 
   // Der Dialog läuft in Main: Der Renderer bekommt nie einen Dateipfad in die Hand,
   // nur den Dateinamen zur Anzeige.
