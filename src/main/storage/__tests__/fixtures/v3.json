@@ -1,0 +1,48 @@
+{
+  "version": 3,
+  "categories": [
+    { "id": "cat-studium", "name": "Studium", "farbe": "blue" },
+    { "id": "cat-persoenlich", "name": "Persönlich", "farbe": "orange" }
+  ],
+  "todos": [
+    {
+      "id": "t1",
+      "titel": "Bibliothek: \"Algorithmen\" zurückgeben",
+      "erledigt": false,
+      "erstelltAm": "2026-10-20T10:00:00.000Z",
+      "prioritaet": 3,
+      "unteraufgaben": [],
+      "categoryId": "cat-persoenlich",
+      "datum": "2026-10-22"
+    },
+    {
+      "id": "t2",
+      "titel": "Lernen für Statistik",
+      "erledigt": true,
+      "erstelltAm": "2026-10-20T11:00:00.000Z",
+      "prioritaet": 5,
+      "unteraufgaben": [
+        { "id": "s1", "titel": "Kapitel 1", "erledigt": true },
+        { "id": "s2", "titel": "Kapitel 2", "erledigt": true }
+      ],
+      "categoryId": "cat-studium",
+      "deadlineId": "d1"
+    }
+  ],
+  "deadlines": [
+    {
+      "id": "d1",
+      "titel": "Hausaufgabe Statistik",
+      "datum": "2026-10-25",
+      "erledigt": false,
+      "prioritaet": 4
+    },
+    {
+      "id": "d2",
+      "titel": "Anmeldung Prüfungen",
+      "datum": "2026-11-01",
+      "erledigt": false,
+      "prioritaet": 5
+    }
+  ]
+}

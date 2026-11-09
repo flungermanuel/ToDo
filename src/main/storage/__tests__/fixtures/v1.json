@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "todos": [
+    {
+      "id": "t1",
+      "titel": "Übungsblatt 3 abgeben",
+      "erledigt": false,
+      "erstelltAm": "2026-09-01T08:00:00.000Z",
+      "prioritaet": 5,
+      "unteraufgaben": [
+        { "id": "s1", "titel": "Aufgabe 1", "erledigt": true },
+        { "id": "s2", "titel": "Aufgabe 2", "erledigt": false }
+      ],
+      "deadlineId": "d1"
+    },
+    {
+      "id": "t2",
+      "titel": "Gym 💪",
+      "erledigt": true,
+      "erstelltAm": "2026-09-02T17:30:00.000Z",
+      "prioritaet": 2,
+      "unteraufgaben": []
+    }
+  ],
+  "deadlines": [
+    {
+      "id": "d1",
+      "titel": "Abgabe Analysis",
+      "datum": "2026-09-10",
+      "erledigt": false,
+      "prioritaet": 4
+    },
+    { "id": "d2", "titel": "Rückmeldung", "datum": "2026-09-30", "erledigt": true, "prioritaet": 3 }
+  ]
+}
