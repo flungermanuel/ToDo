@@ -78,6 +78,11 @@ export class JsonStorage implements Storage {
     return this.queue
   }
 
+  /** Eine Datei hält nichts offen – es reicht, laufende Schreibvorgänge abzuwarten. */
+  close(): Promise<void> {
+    return this.flush()
+  }
+
   async backup(tag: string): Promise<string | null> {
     await this.flush()
     try {

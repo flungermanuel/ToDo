@@ -95,12 +95,13 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
 
-// Vor dem Beenden laufende Schreibvorgänge abwarten, damit nichts verloren geht.
+// Vor dem Beenden laufende Schreibvorgänge abwarten und die Speicherung schließen,
+// damit nichts verloren geht.
 let flushed = false
 app.on('will-quit', (event) => {
   if (flushed || !storage) return
   event.preventDefault()
-  void storage.flush().finally(() => {
+  void storage.close().finally(() => {
     flushed = true
     app.quit()
   })

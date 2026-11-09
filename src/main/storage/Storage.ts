@@ -14,4 +14,6 @@ export interface Storage {
    * `tag` steht im Namen der Sicherung. Gibt es noch nichts zu sichern: null.
    */
   backup(tag: string): Promise<string | null>
+  /** Schreibt Ausstehendes und gibt Ressourcen frei (z. B. die Datenbankverbindung). */
+  close(): Promise<void>
 }
