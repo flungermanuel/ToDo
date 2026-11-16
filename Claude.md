@@ -10,7 +10,8 @@ Persönliches Lernprojekt: Fokus auf saubere Architektur und nachvollziehbaren C
 - Speicherung (seit V2.0): SQLite-Datenbank %APPDATA%/FlungDo/flungdo.db über das eingebaute
   `node:sqlite`, reines SQL ohne ORM. Bis V1.3: JSON-Datei todo-data.json im selben Ordner
   (wird beim ersten Start übernommen, bis V1: %APPDATA%/todo)
-- Kein Backend/Server, kein Sync, keine KI
+- Kein Backend/Server, kein Sync. KI (seit V3.0) nur lokal über Ollama (`http://127.0.0.1:11434`),
+  Standardmodell `gemma3:4b`, keine Cloud
 
 ## Architektur (strikt einhalten)
 Drei getrennte Schichten:
@@ -23,8 +24,23 @@ Drei getrennte Schichten:
    Storage-Vertrag erfüllen (`__tests__/storageContract.ts`)
 
 - Kommunikation Renderer ↔ Main nur über preload + contextBridge (IPC), nodeIntegration aus
-- Spätere KI-Anbindung kommt als austauschbare Funktion parseInput(text) dazu, noch nicht bauen
-- Details: docs/architecture.md, Entscheidungen: docs/decisions.md
+- KI-Eingabe (seit V3.0): `src/core/capture` (Schema, Validierung, `resolveDate`, Vorschau-Karten,
+  rein, ohne Netzwerk), `src/main/ai` (`AiProvider`, `OllamaProvider`, `FakeProvider`,
+  `parseInput`, Einstellungen), `src/shared/capture.ts` (gemeinsame Typen)
+- Details: docs/architecture.md, Entscheidungen: docs/decisions.md, Modellwahl: docs/evaluation.md
+
+Regeln für die KI-Schicht (V3):
+- Alles vom Modell gilt als unvertraut: nur gegen das Schema prüfen (`validateCaptureOutput`),
+  nie ausführen. Der Nutzertext geht dem Modell als Daten, nicht als Anweisung
+- Das Modell rechnet kein Datum: es liefert `datumText`, `resolveDate` (core) rechnet
+- Nichts wird ohne Bestätigung gespeichert (Vorschau-Karten); Übernehmen ist rückgängig zu
+  machen (löscht genau die angelegten IDs)
+- Renderer und core kennen keine URLs, Modelle oder Keys; der Renderer spricht nur über
+  `window.api.capture` und `window.api.ai`
+- Fehler sind Ergebnisse (`AnalyzeResult`), nie Datenverlust: der Eingabetext bleibt erhalten
+- Eingaben und Modellantworten werden nicht gespeichert und nicht geloggt
+- Einstellungen (Modell) in `ai-settings.json` im Datenordner, nicht in der Datenbank
+- Tests und CI laufen ohne Ollama (FakeProvider, gemocktes `fetch`)
 
 ## Datenmodell
 ```ts
@@ -130,6 +146,16 @@ Priorität: am Todo sichtbar.
 - CI (GitHub Actions) bei jedem Push, Release-Workflow bei Tag v* baut den Installer
 - Doku: README.md, docs/architecture.md, docs/decisions.md, docs/performance.md, docs/packaging.md
 
+## V3.0 (KI-Eingabe, Auftrag: docs/task-v3.md)
+- Eingabefeld im Todo-Widget und Schnellleiste `Strg+K`: Freitext auf Deutsch → Vorschau-Karten
+  für Todo, Deadline und Prüfung, die man ändert und bestätigt; danach „Rückgängig“
+- Deadline-Karte mit Schalter „Todo dazu anlegen“ (verknüpftes Todo)
+- Analyse lokal über Ollama; schlägt sie fehl, öffnet sich eine Karte mit dem Rohtext als Titel
+- Einstellungen: Bereich „KI-Eingabe“ in der Seitenleiste (Status, Modellwahl, Einrichtungshinweis)
+- Evaluation mit 40 Sätzen (`eval/cases.json`), Ergebnis und Modellwahl in docs/evaluation.md
+- Nicht in V3.0: Chatverlauf, Agenten, Tagesplanung, Unteraufgaben-Vorschläge, Sprache, Englisch,
+  Uhrzeiten, Wiederholungen, globaler Hotkey/Tray; Claude-Provider (optional) nicht umgesetzt
+
 ## Design
 - Systemschrift (-apple-system, "Segoe UI"), viel Weißraum, 12 px Eckenradius, dezente Schatten
 - Eigene schlanke Titelleiste, keine Standard-Windows-Optik
@@ -159,6 +185,8 @@ Priorität: am Todo sichtbar.
   Konfiguration in `electron-builder.yml`)
 - `node scripts/make-icon.mjs` – App-Icon (`build/icon.ico`, `build/icon.png`) neu erzeugen
 - `npm run bench` – Speicherung messen (load/save, JSON vs. SQLite)
+- `npm run eval -- --provider ollama --model <name>` – KI-Eingabe mit 40 Sätzen messen (braucht
+  laufendes Ollama, nur manuell, nie in der CI; Rohdaten nach `eval/results/`, nicht im Git)
 - `node scripts/seed.mjs <ordner>` – Testdaten mit 1.000/5.000/10.000 Todos erzeugen
 - `node scripts/measure.mjs <ordner>` – echte App messen (vorher `npm run build`), Ergebnisse
   nach docs/performance.md
@@ -168,6 +196,8 @@ Umgebungsvariablen (nur Entwicklung/Messung):
   (Electron ignoriert unter Windows `APPDATA`)
 - `FLUNGDO_STORAGE=json` – JSON statt SQLite (Vergleichsmessungen)
 - `FLUNGDO_PERF=1` – Main schreibt Zeitmarken `[perf] …`
+- `FLUNGDO_AI=fake` – FakeProvider statt Ollama (feste Antworten, Entwicklung ohne Modell)
+- `FLUNGDO_AI_MODEL=<name>` – anderes Ollama-Modell, überschreibt das gespeicherte
 
 Vor `npm run dist` die Version in package.json erhöhen – sonst wird der Installer der
 Vorversion in dist/ überschrieben.
