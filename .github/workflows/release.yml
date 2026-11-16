@@ -23,7 +23,9 @@ jobs:
       # Vor dem Veröffentlichen dieselben Prüfungen wie in der CI
       - run: npm run typecheck
       - run: npm test
-      - run: npm run dist
+      # --publish never: electron-builder würde bei einem Tag selbst veröffentlichen wollen und
+      # ohne GH_TOKEN scheitern. Das Release legt der nächste Schritt an.
+      - run: npm run dist -- --publish never
       - name: GitHub Release anlegen
         shell: bash
         env:
