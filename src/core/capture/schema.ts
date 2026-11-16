@@ -1,24 +1,10 @@
-import type { Priority } from '@shared/types'
-
 // Form der Einträge, die aus einem Freitext entstehen. Das Modell liefert nur Text –
 // kein Datum, keine IDs. Das Datum löst der Code auf (resolveDate), IDs vergibt core.
+// Die Typen liegen in shared (der Renderer braucht sie auch), hier wird nur re-exportiert.
+import { CAPTURE_TYPES } from '@shared/capture'
 
-export type CaptureType = 'todo' | 'deadline' | 'pruefung'
-
-export const CAPTURE_TYPES: readonly CaptureType[] = ['todo', 'deadline', 'pruefung']
-
-/** Ein geprüfter Eintrag. Leere Strings stehen für "nicht angegeben". */
-export interface CaptureEntry {
-  typ: CaptureType
-  /** Kurzer, bereinigter Titel (höchstens MAX_TITLE_LENGTH Zeichen) */
-  titel: string
-  /** Datumsangabe, wie sie im Eingabetext steht, z. B. "übernächsten Freitag" */
-  datumText: string
-  /** Name einer vorhandenen Kategorie oder leer */
-  kategorie: string
-  /** Nur gesetzt, wenn der Text es nahelegt – sonst gilt der Standard */
-  prioritaet?: Priority
-}
+export { CAPTURE_TYPES } from '@shared/capture'
+export type { CaptureEntry, CaptureType } from '@shared/capture'
 
 export const MAX_TITLE_LENGTH = 120
 

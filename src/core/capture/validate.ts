@@ -25,6 +25,15 @@ export function validateCaptureOutput(raw: unknown): CaptureValidation {
   return { entries, notices }
 }
 
+/**
+ * Hat die Antwort überhaupt die erwartete Form (Liste oder `{ eintraege: [...] }`)?
+ * Eine leere Liste ist gültig ("kein Eintrag erkannt"), Text oder ein anderes Objekt nicht –
+ * daran entscheidet sich, ob ein Wiederholungsversuch sinnvoll ist.
+ */
+export function hasCaptureShape(raw: unknown): boolean {
+  return Array.isArray(raw) || (isRecord(raw) && Array.isArray(raw.eintraege))
+}
+
 function extractList(raw: unknown): unknown[] {
   if (Array.isArray(raw)) return raw
   if (isRecord(raw) && Array.isArray(raw.eintraege)) return raw.eintraege
