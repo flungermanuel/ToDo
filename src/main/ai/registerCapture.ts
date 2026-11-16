@@ -1,14 +1,14 @@
 import { ipcMain } from 'electron'
 import { IpcChannels } from '@shared/ipc'
 import type { AnalyzeResult, CaptureContext } from '@shared/capture'
+import type { AiService } from './aiService'
 import { parseInput } from './parseInput'
-import type { AiProvider } from './Provider'
 
 /**
- * Hängt die Analyse an IPC. Es läuft immer nur eine Analyse: Eine neue (oder "Abbrechen")
+ * Hängt die KI-Eingabe an IPC. Es läuft immer nur eine Analyse: Eine neue (oder "Abbrechen")
  * beendet die vorherige. Was aus dem Renderer kommt, wird geprüft, bevor es weitergeht.
  */
-export function registerCaptureHandlers(provider: AiProvider): void {
+export function registerCaptureHandlers(ai: AiService): void {
   let current: AbortController | undefined
 
   ipcMain.handle(
@@ -22,7 +22,7 @@ export function registerCaptureHandlers(provider: AiProvider): void {
       const controller = new AbortController()
       current = controller
       try {
-        return await parseInput(provider, input.text, input.context, controller.signal)
+        return await parseInput(ai.provider, input.text, input.context, controller.signal)
       } finally {
         if (current === controller) current = undefined
       }
@@ -30,6 +30,10 @@ export function registerCaptureHandlers(provider: AiProvider): void {
   )
 
   ipcMain.on(IpcChannels.captureCancel, () => current?.abort())
+
+  // Einstellungen: Status (Ollama erreichbar? welche Modelle?) und Modellwahl
+  ipcMain.handle(IpcChannels.aiStatus, () => ai.status())
+  ipcMain.handle(IpcChannels.aiSetModel, (_event, model: unknown) => ai.setModel(model))
 }
 
 function toInput(

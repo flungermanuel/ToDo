@@ -18,6 +18,10 @@ const api: Api = {
     analyze: (text, context) => ipcRenderer.invoke(IpcChannels.captureAnalyze, text, context),
     cancel: () => ipcRenderer.send(IpcChannels.captureCancel)
   },
+  ai: {
+    getStatus: () => ipcRenderer.invoke(IpcChannels.aiStatus),
+    setModel: (model) => ipcRenderer.invoke(IpcChannels.aiSetModel, model)
+  },
   window: {
     minimize: () => ipcRenderer.send(IpcChannels.windowMinimize),
     toggleMaximize: () => ipcRenderer.send(IpcChannels.windowToggleMaximize),

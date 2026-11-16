@@ -53,3 +53,14 @@ export interface CaptureError {
 export type AnalyzeResult =
   | { status: 'ok'; entries: ParsedEntry[]; notices: string[] }
   | { status: 'error'; error: CaptureError }
+
+/** Zustand der KI-Anbindung für die Einstellungen */
+export interface AiStatus {
+  provider: 'ollama' | 'fake'
+  /** Das Modell, mit dem analysiert wird */
+  model: string
+  /** Antwortet Ollama? */
+  reachable: boolean
+  /** Installierte Modelle (leer, wenn Ollama nicht erreichbar ist) */
+  models: string[]
+}

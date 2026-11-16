@@ -14,7 +14,8 @@ const KEEP_ALIVE = '30m'
 const MAX_OUTPUT_TOKENS = 600
 
 export interface OllamaOptions {
-  model: string
+  /** Eine Funktion, damit ein in den Einstellungen geändertes Modell sofort gilt */
+  model: string | (() => string)
   baseUrl?: string
   timeoutMs?: number
   /** Für Tests austauschbar, sonst das eingebaute fetch */
@@ -23,13 +24,14 @@ export interface OllamaOptions {
 
 export class OllamaProvider implements AiProvider {
   readonly name = 'ollama'
-  private readonly model: string
+  private readonly getModel: () => string
   private readonly baseUrl: string
   private readonly timeoutMs: number
   private readonly fetchFn: typeof fetch
 
   constructor(options: OllamaOptions) {
-    this.model = options.model
+    const { model } = options
+    this.getModel = typeof model === 'function' ? model : () => model
     this.baseUrl = options.baseUrl ?? OLLAMA_URL
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
     this.fetchFn = options.fetch ?? fetch
@@ -39,7 +41,7 @@ export class OllamaProvider implements AiProvider {
     const response = await this.call(
       '/api/chat',
       {
-        model: this.model,
+        model: this.getModel(),
         stream: false,
         // Antwort auf das Schema festlegen (Ollama erzwingt das JSON-Format)
         format: CAPTURE_JSON_SCHEMA,
@@ -96,7 +98,7 @@ export class OllamaProvider implements AiProvider {
       if (response.status === 404) {
         throw new AiError(
           'model-missing',
-          `Das Modell „${this.model}“ ist nicht installiert. Lade es mit: ollama pull ${this.model}`
+          `Das Modell „${this.getModel()}“ ist nicht installiert. Lade es mit: ollama pull ${this.getModel()}`
         )
       }
       if (!response.ok) {

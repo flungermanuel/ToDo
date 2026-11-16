@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { app, BrowserWindow, nativeTheme } from 'electron'
-import { createProvider } from './ai/createProvider'
+import { createAiService } from './ai/aiService'
 import { registerCaptureHandlers } from './ai/registerCapture'
 import { registerIpcHandlers } from './ipc'
 import { Notices } from './notices'
@@ -96,7 +96,7 @@ app.whenReady().then(async () => {
       : await createStorage(dataDir, onNotice)
   perfMark('storage-ready')
   registerIpcHandlers(storage, notices)
-  registerCaptureHandlers(createProvider())
+  registerCaptureHandlers(await createAiService(dataDir))
   createWindow()
 
   app.on('activate', () => {

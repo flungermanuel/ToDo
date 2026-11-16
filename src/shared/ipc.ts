@@ -1,6 +1,6 @@
 // Vertrag zwischen Renderer und Main: Kanalnamen und die Form von window.api.
 // Liegt in shared, damit main, preload und renderer dieselbe Quelle nutzen.
-import type { AnalyzeResult, CaptureContext } from './capture'
+import type { AiStatus, AnalyzeResult, CaptureContext } from './capture'
 import type { AppData } from './types'
 
 export const IpcChannels = {
@@ -12,6 +12,8 @@ export const IpcChannels = {
   appNotices: 'app:notices',
   captureAnalyze: 'capture:analyze',
   captureCancel: 'capture:cancel',
+  aiStatus: 'ai:status',
+  aiSetModel: 'ai:set-model',
   windowMinimize: 'window:minimize',
   windowToggleMaximize: 'window:toggle-maximize',
   windowClose: 'window:close'
@@ -67,6 +69,13 @@ export interface CaptureApi {
   cancel(): void
 }
 
+export interface AiApi {
+  /** Läuft Ollama, welche Modelle gibt es, welches ist gewählt? */
+  getStatus(): Promise<AiStatus>
+  /** Wählt das Modell für die KI-Eingabe (wird gemerkt) */
+  setModel(model: string): Promise<void>
+}
+
 export interface WindowApi {
   minimize(): void
   toggleMaximize(): void
@@ -77,5 +86,6 @@ export interface Api {
   data: DataApi
   app: AppApi
   capture: CaptureApi
+  ai: AiApi
   window: WindowApi
 }
