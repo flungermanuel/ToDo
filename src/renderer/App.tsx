@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { loadData, useAppStore } from './state/appStore'
+import { captureActions } from './state/captureStore'
 import { CaptureOverlay } from './components/capture/CaptureOverlay'
 import { TitleBar } from './components/TitleBar'
 import { TodoWidget } from './components/todos/TodoWidget'
@@ -16,6 +17,18 @@ export function App() {
 
   useEffect(() => {
     void loadData()
+  }, [])
+
+  // Strg+K öffnet die Schnellleiste für die KI-Eingabe – überall in der App
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        captureActions.open()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
   }, [])
 
   return (
