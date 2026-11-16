@@ -6,6 +6,7 @@ import { CATEGORY_COLOR_META } from '@renderer/lib/categoryColors'
 import { AddRow } from '@renderer/components/ui/AddRow'
 import { CategoryMenu } from '@renderer/components/categories/CategoryMenu'
 import { RenameCategoryInput } from '@renderer/components/categories/RenameCategoryInput'
+import { AiSettings } from './AiSettings'
 import { DataSettings } from './DataSettings'
 
 interface SidebarProps {
@@ -66,6 +67,7 @@ export function Sidebar({ open, onClose, data }: SidebarProps) {
             <CategoryList data={data} />
 
             <footer className="border-t border-separator p-2">
+              <AiSettings />
               <DataSettings />
             </footer>
           </motion.aside>
