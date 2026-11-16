@@ -26,9 +26,9 @@ Geprüft am 09.11.2026 auf Windows 11 mit Electron 45.1.0 (Node 24.22.1, SQLite 
 | SQLite läuft in der gepackten App | `dist/win-unpacked/FlungDo.exe` mit `FLUNGDO_DATA_DIR` auf einen Test-Ordner | ✅ |
 | Übernahme einer 1.x-Datei | Test-Ordner mit `todo-data.json` (Version 4) | ✅ `flungdo.db` angelegt, Sicherung `todo-data.backup-vor-sqlite-….json`, JSON → `todo-data.migrated.json` |
 | Daten anlegen/ändern, beenden, neu starten | Todo abhaken, App schließen, neu starten | ✅ Zustand erhalten, nach dem Beenden keine `-wal`/`-shm`-Dateien mehr |
-| Frischer Windows-Benutzer: installieren, Daten anlegen, neu starten | manuell, siehe Checkliste | ⏳ offen |
-| Über 1.3 drüberinstallieren, Daten bleiben | manuell, siehe Checkliste | ⏳ offen |
-| Deinstallieren, Daten bleiben in `%APPDATA%\FlungDo` | manuell, siehe Checkliste | ⏳ offen |
+| Frischer Windows-Benutzer: installieren, Daten anlegen, neu starten | manuell, siehe Checkliste | ⏭️ nicht getestet (bewusst übersprungen) |
+| 1.3 deinstallieren, 2.0 installieren, Daten bleiben | echte Daten am 16.11.2026, `FlungDo-Setup-2.0.0.exe` | ✅ Daten übernommen (`flungdo.db`, `todo-data.migrated.json`, Sicherung), Neustart ok. Kein echtes Drüberinstallieren ohne Deinstallation getestet |
+| Deinstallieren, Daten bleiben in `%APPDATA%\FlungDo` | manuell, siehe Checkliste | ⏭️ mit 2.0 nicht getestet (bewusst übersprungen); die Deinstallation von 1.3 ließ den Ordner bestehen |
 
 ## Checkliste für den manuellen Test
 
