@@ -14,6 +14,10 @@ const api: Api = {
   app: {
     takeNotices: () => ipcRenderer.invoke(IpcChannels.appNotices)
   },
+  capture: {
+    analyze: (text, context) => ipcRenderer.invoke(IpcChannels.captureAnalyze, text, context),
+    cancel: () => ipcRenderer.send(IpcChannels.captureCancel)
+  },
   window: {
     minimize: () => ipcRenderer.send(IpcChannels.windowMinimize),
     toggleMaximize: () => ipcRenderer.send(IpcChannels.windowToggleMaximize),

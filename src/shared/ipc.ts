@@ -1,5 +1,6 @@
 // Vertrag zwischen Renderer und Main: Kanalnamen und die Form von window.api.
 // Liegt in shared, damit main, preload und renderer dieselbe Quelle nutzen.
+import type { AnalyzeResult, CaptureContext } from './capture'
 import type { AppData } from './types'
 
 export const IpcChannels = {
@@ -9,6 +10,8 @@ export const IpcChannels = {
   dataImportPick: 'data:import-pick',
   dataImportConfirm: 'data:import-confirm',
   appNotices: 'app:notices',
+  captureAnalyze: 'capture:analyze',
+  captureCancel: 'capture:cancel',
   windowMinimize: 'window:minimize',
   windowToggleMaximize: 'window:toggle-maximize',
   windowClose: 'window:close'
@@ -54,6 +57,16 @@ export interface AppApi {
   takeNotices(): Promise<string[]>
 }
 
+export interface CaptureApi {
+  /**
+   * Analysiert einen Freitext (KI-Eingabe). Fehler kommen als Ergebnis zurück, nicht als
+   * Ausnahme – der Text bleibt dann im Eingabefeld. Der Renderer kennt weder Modell noch URL.
+   */
+  analyze(text: string, context: CaptureContext): Promise<AnalyzeResult>
+  /** Bricht die laufende Analyse ab (sie endet mit Fehlerart "canceled") */
+  cancel(): void
+}
+
 export interface WindowApi {
   minimize(): void
   toggleMaximize(): void
@@ -63,5 +76,6 @@ export interface WindowApi {
 export interface Api {
   data: DataApi
   app: AppApi
+  capture: CaptureApi
   window: WindowApi
 }
