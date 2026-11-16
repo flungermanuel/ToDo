@@ -6,14 +6,17 @@ import type { Category } from '@shared/types'
 
 const STORAGE_KEY = 'flungdo.lastCategory'
 
+/** Zuletzt gewählte Kategorie, ohne Hook – für Stellen außerhalb von Komponenten */
+export function readLastCategoryId(): string | null {
+  try {
+    return localStorage.getItem(STORAGE_KEY)
+  } catch {
+    return null
+  }
+}
+
 export function useLastCategory(categories: Category[]): [string, (id: string) => void] {
-  const [stored, setStored] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY)
-    } catch {
-      return null
-    }
-  })
+  const [stored, setStored] = useState<string | null>(readLastCategoryId)
 
   const valid = categories.some((c) => c.id === stored) ? stored! : (categories[0]?.id ?? '')
 
