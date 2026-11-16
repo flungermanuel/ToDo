@@ -30,6 +30,18 @@ Geprüft am 09.11.2026 auf Windows 11 mit Electron 45.1.0 (Node 24.22.1, SQLite 
 | 1.3 deinstallieren, 2.0 installieren, Daten bleiben | echte Daten am 16.11.2026, `FlungDo-Setup-2.0.0.exe` | ✅ Daten übernommen (`flungdo.db`, `todo-data.migrated.json`, Sicherung), Neustart ok. Kein echtes Drüberinstallieren ohne Deinstallation getestet |
 | Deinstallieren, Daten bleiben in `%APPDATA%\FlungDo` | manuell, siehe Checkliste | ⏭️ mit 2.0 nicht getestet (bewusst übersprungen); die Deinstallation von 1.3 ließ den Ordner bestehen |
 
+### Version 3.0 (KI-Eingabe)
+
+| Prüfung | Wie | Ergebnis |
+|---|---|---|
+| Prompt und Ollama-Anbindung stecken im Build | `npm run dist`, Prompt-Text steht in `out/main/index.js` (`?raw`-Import) | ✅ |
+| KI-Eingabe in der gepackten App | `dist/win-unpacked/FlungDo.exe` mit `FLUNGDO_DATA_DIR`, echtes Ollama mit `gemma3:4b`: drei Karten, richtige Daten und Typen | ✅ |
+| 2.0 durch `FlungDo-Setup-3.0.0.exe` ersetzen (ohne Deinstallieren) | echte Daten am 16.11.2026 | ✅ Daten unverändert, KI-Eingabe und Seitenleiste funktionieren |
+| Frischer Windows-Benutzer, Deinstallieren | – | ⏭️ nicht getestet (bewusst übersprungen) |
+
+Ollama wird **nicht** mitgeliefert, sondern muss separat installiert sein. Ohne Ollama zeigt die
+Seitenleiste „Ollama nicht erreichbar“ mit Einrichtungshinweis, alles andere läuft unverändert.
+
 ## Checkliste für den manuellen Test
 
 Am besten in einem **neuen Windows-Benutzerkonto**: Dort gibt es keine Entwicklungsumgebung
