@@ -5,7 +5,7 @@ import { FakeProvider } from './FakeProvider'
 import { OllamaProvider } from './OllamaProvider'
 import type { AiProvider } from './Provider'
 
-/** Vorläufiges Standardmodell – welches es endgültig wird, entscheidet die Evaluation. */
+/** Standardmodell, begründet in docs/evaluation.md (37 von 40 Fällen, llama3.2:3b: 31). */
 export const DEFAULT_MODEL = 'gemma3:4b'
 
 export const SETTINGS_FILE = 'ai-settings.json'
