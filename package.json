@@ -16,7 +16,8 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "bench": "vitest bench --run --reporter=verbose"
+    "bench": "vitest bench --run --reporter=verbose",
+    "eval": "node scripts/eval.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

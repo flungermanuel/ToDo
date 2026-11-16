@@ -12,6 +12,8 @@
     "src/main/**/*",
     "src/preload/**/*",
     "src/core/**/*",
-    "src/shared/**/*"
+    "src/shared/**/*",
+    "eval/**/*",
+    "eval/**/*.json"
   ]
 }

@@ -1,0 +1,349 @@
+{
+  "heute": "2026-11-16",
+  "kategorien": ["Studium", "Persönlich"],
+  "hinweis": "Heute ist Montag, der 16.11.2026. Erwartete Daten sind von Hand ausgerechnet. 'kategorie' und 'prioritaet' stehen nur dort, wo der Text es eindeutig nahelegt ('hoch' = 4 oder 5).",
+  "faelle": [
+    {
+      "id": 1,
+      "gruppe": "einfaches Todo",
+      "text": "Wäsche waschen",
+      "erwartet": [{ "typ": "todo", "titel": "Wäsche waschen", "datum": null }]
+    },
+    {
+      "id": 2,
+      "gruppe": "einfaches Todo",
+      "text": "Milch kaufen",
+      "erwartet": [{ "typ": "todo", "titel": "Milch kaufen", "datum": null }]
+    },
+    {
+      "id": 3,
+      "gruppe": "einfaches Todo",
+      "text": "Steuererklärung machen",
+      "erwartet": [{ "typ": "todo", "titel": "Steuererklärung machen", "datum": null }]
+    },
+    {
+      "id": 4,
+      "gruppe": "einfaches Todo",
+      "text": "Skript zur Linearen Algebra durcharbeiten",
+      "erwartet": [
+        {
+          "typ": "todo",
+          "titel": "Skript zur Linearen Algebra durcharbeiten",
+          "datum": null,
+          "kategorie": "Studium"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "gruppe": "einfaches Todo",
+      "text": "Zahnarzt anrufen",
+      "erwartet": [{ "typ": "todo", "titel": "Zahnarzt anrufen", "datum": null }]
+    },
+    {
+      "id": 6,
+      "gruppe": "einfaches Todo",
+      "text": "Fahrrad reparieren lassen",
+      "erwartet": [{ "typ": "todo", "titel": "Fahrrad reparieren lassen", "datum": null }]
+    },
+
+    {
+      "id": 7,
+      "gruppe": "Deadline",
+      "text": "Abgabe Übungsblatt 5 bis Freitag",
+      "erwartet": [
+        {
+          "typ": "deadline",
+          "titel": "Abgabe Übungsblatt 5",
+          "datum": "2026-11-20",
+          "kategorie": "Studium"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "gruppe": "Deadline",
+      "text": "Hausarbeit Soziologie abgeben am 5. Dezember",
+      "erwartet": [
+        {
+          "typ": "deadline",
+          "titel": "Hausarbeit Soziologie abgeben",
+          "datum": "2026-12-05",
+          "kategorie": "Studium"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "gruppe": "Deadline",
+      "text": "Die Bewerbung muss bis übermorgen raus",
+      "erwartet": [{ "typ": "deadline", "titel": "Bewerbung", "datum": "2026-11-18" }]
+    },
+    {
+      "id": 10,
+      "gruppe": "Deadline",
+      "text": "Frist für die Anmeldung zum Praktikum: 30.11.",
+      "erwartet": [{ "typ": "deadline", "titel": "Anmeldung zum Praktikum", "datum": "2026-11-30" }]
+    },
+    {
+      "id": 11,
+      "gruppe": "Deadline",
+      "text": "Referat Mikroökonomie abgeben nächsten Freitag",
+      "erwartet": [
+        {
+          "typ": "deadline",
+          "titel": "Referat Mikroökonomie abgeben",
+          "datum": "2026-11-20",
+          "kategorie": "Studium"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "gruppe": "Deadline",
+      "text": "Projektbericht einreichen in 2 Wochen",
+      "erwartet": [
+        { "typ": "deadline", "titel": "Projektbericht einreichen", "datum": "2026-11-30" }
+      ]
+    },
+
+    {
+      "id": 13,
+      "gruppe": "Prüfung",
+      "text": "Klausur Mechanik am 12. Februar",
+      "erwartet": [
+        { "typ": "pruefung", "titel": "Mechanik", "datum": "2027-02-12", "kategorie": "Studium" }
+      ]
+    },
+    {
+      "id": 14,
+      "gruppe": "Prüfung",
+      "text": "Prüfung Statistik nächsten Montag",
+      "erwartet": [
+        { "typ": "pruefung", "titel": "Statistik", "datum": "2026-11-23", "kategorie": "Studium" }
+      ]
+    },
+    {
+      "id": 15,
+      "gruppe": "Prüfung",
+      "text": "Mathe Klausur am 3.2.",
+      "erwartet": [
+        { "typ": "pruefung", "titel": "Mathe", "datum": "2027-02-03", "kategorie": "Studium" }
+      ]
+    },
+    {
+      "id": 16,
+      "gruppe": "Prüfung",
+      "text": "Mündliche Prüfung Wirtschaftsrecht übernächste Woche Dienstag",
+      "erwartet": [
+        {
+          "typ": "pruefung",
+          "titel": "Wirtschaftsrecht",
+          "datum": "2026-12-01",
+          "kategorie": "Studium"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "gruppe": "Prüfung",
+      "text": "Test in Physik übermorgen",
+      "erwartet": [
+        { "typ": "pruefung", "titel": "Physik", "datum": "2026-11-18", "kategorie": "Studium" }
+      ]
+    },
+
+    {
+      "id": 18,
+      "gruppe": "mehrere Einträge",
+      "text": "Morgen Zahnarzt, Freitag Abgabe Seminararbeit, Prüfung Recht am 20.1.",
+      "erwartet": [
+        { "typ": "todo", "titel": "Zahnarzt", "datum": "2026-11-17" },
+        { "typ": "deadline", "titel": "Abgabe Seminararbeit", "datum": "2026-11-20" },
+        { "typ": "pruefung", "titel": "Recht", "datum": "2027-01-20" }
+      ]
+    },
+    {
+      "id": 19,
+      "gruppe": "mehrere Einträge",
+      "text": "Einkaufen, Mama anrufen, Bibliothek Bücher zurückgeben",
+      "erwartet": [
+        { "typ": "todo", "titel": "Einkaufen", "datum": null },
+        { "typ": "todo", "titel": "Mama anrufen", "datum": null },
+        { "typ": "todo", "titel": "Bücher zurückgeben", "datum": null }
+      ]
+    },
+    {
+      "id": 20,
+      "gruppe": "mehrere Einträge",
+      "text": "Prüfung Chemie am 8. Februar und Prüfung Biologie am 10. Februar",
+      "erwartet": [
+        { "typ": "pruefung", "titel": "Chemie", "datum": "2027-02-08" },
+        { "typ": "pruefung", "titel": "Biologie", "datum": "2027-02-10" }
+      ]
+    },
+    {
+      "id": 21,
+      "gruppe": "mehrere Einträge",
+      "text": "Wohnung putzen und Wäsche waschen bis Sonntag",
+      "erwartet": [
+        { "typ": "todo", "titel": "Wohnung putzen", "datum": "2026-11-22" },
+        { "typ": "todo", "titel": "Wäsche waschen", "datum": "2026-11-22" }
+      ]
+    },
+    {
+      "id": 22,
+      "gruppe": "mehrere Einträge",
+      "text": "Freitag Abgabe Statistik und Samstag Party vorbereiten",
+      "erwartet": [
+        { "typ": "deadline", "titel": "Abgabe Statistik", "datum": "2026-11-20" },
+        { "typ": "todo", "titel": "Party vorbereiten", "datum": "2026-11-21" }
+      ]
+    },
+    {
+      "id": 23,
+      "gruppe": "mehrere Einträge",
+      "text": "Übung Algebra abgeben Mittwoch, Vorlesung nacharbeiten",
+      "erwartet": [
+        { "typ": "deadline", "titel": "Übung Algebra abgeben", "datum": "2026-11-18" },
+        { "typ": "todo", "titel": "Vorlesung nacharbeiten", "datum": null }
+      ]
+    },
+
+    {
+      "id": 24,
+      "gruppe": "Datum",
+      "text": "Oma anrufen heute",
+      "erwartet": [{ "typ": "todo", "titel": "Oma anrufen", "datum": "2026-11-16" }]
+    },
+    {
+      "id": 25,
+      "gruppe": "Datum",
+      "text": "Blumen gießen morgen",
+      "erwartet": [{ "typ": "todo", "titel": "Blumen gießen", "datum": "2026-11-17" }]
+    },
+    {
+      "id": 26,
+      "gruppe": "Datum",
+      "text": "Geschenk besorgen in 3 Tagen",
+      "erwartet": [{ "typ": "todo", "titel": "Geschenk besorgen", "datum": "2026-11-19" }]
+    },
+    {
+      "id": 27,
+      "gruppe": "Datum",
+      "text": "Arzttermin vereinbaren nächste Woche Mittwoch",
+      "erwartet": [{ "typ": "todo", "titel": "Arzttermin vereinbaren", "datum": "2026-11-25" }]
+    },
+    {
+      "id": 28,
+      "gruppe": "Datum",
+      "text": "Weihnachtsgeschenke einpacken am 24.12.",
+      "erwartet": [
+        { "typ": "todo", "titel": "Weihnachtsgeschenke einpacken", "datum": "2026-12-24" }
+      ]
+    },
+    {
+      "id": 29,
+      "gruppe": "Datum",
+      "text": "Auto zum TÜV bringen in einem Monat",
+      "erwartet": [{ "typ": "todo", "titel": "Auto zum TÜV bringen", "datum": "2026-12-16" }]
+    },
+    {
+      "id": 30,
+      "gruppe": "Datum",
+      "text": "Bericht schreiben übernächsten Freitag",
+      "erwartet": [{ "typ": "todo", "titel": "Bericht schreiben", "datum": "2026-11-27" }]
+    },
+
+    {
+      "id": 31,
+      "gruppe": "Priorität",
+      "text": "dringend Passbild machen lassen",
+      "erwartet": [
+        { "typ": "todo", "titel": "Passbild machen lassen", "datum": null, "prioritaet": "hoch" }
+      ]
+    },
+    {
+      "id": 32,
+      "gruppe": "Priorität",
+      "text": "Wichtig: Stipendium beantragen bis 1.12.",
+      "erwartet": [
+        {
+          "typ": "deadline",
+          "titel": "Stipendium beantragen",
+          "datum": "2026-12-01",
+          "prioritaet": "hoch"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "gruppe": "Priorität",
+      "text": "Irgendwann mal den Keller aufräumen",
+      "erwartet": [{ "typ": "todo", "titel": "Keller aufräumen", "datum": null }]
+    },
+
+    {
+      "id": 34,
+      "gruppe": "Kategorie",
+      "text": "Laufen gehen morgen",
+      "kategorien": ["Studium", "Persönlich", "Sport"],
+      "erwartet": [
+        { "typ": "todo", "titel": "Laufen gehen", "datum": "2026-11-17", "kategorie": "Sport" }
+      ]
+    },
+    {
+      "id": 35,
+      "gruppe": "Kategorie",
+      "text": "Vorlesung Analysis nacharbeiten",
+      "kategorien": ["Studium", "Persönlich", "Sport"],
+      "erwartet": [
+        {
+          "typ": "todo",
+          "titel": "Vorlesung Analysis nacharbeiten",
+          "datum": null,
+          "kategorie": "Studium"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "gruppe": "Kategorie",
+      "text": "Geburtstagsgeschenk für Papa kaufen",
+      "kategorien": ["Studium", "Persönlich", "Sport"],
+      "erwartet": [
+        {
+          "typ": "todo",
+          "titel": "Geburtstagsgeschenk für Papa kaufen",
+          "datum": null,
+          "kategorie": "Persönlich"
+        }
+      ]
+    },
+
+    {
+      "id": 37,
+      "gruppe": "Störfall: Umgangssprache",
+      "text": "muss unbedingt noch bis fr die hausarbeit abgeben",
+      "erwartet": [{ "typ": "deadline", "titel": "Hausarbeit abgeben", "datum": "2026-11-20" }]
+    },
+    {
+      "id": 38,
+      "gruppe": "Störfall: Tippfehler",
+      "text": "Zahnarzt anrufn morgen",
+      "erwartet": [{ "typ": "todo", "titel": "Zahnarzt anrufen", "datum": "2026-11-17" }]
+    },
+    {
+      "id": 39,
+      "gruppe": "Störfall: fehlendes Datum",
+      "text": "Abgabe Praktikumsbericht",
+      "erwartet": [{ "typ": "deadline", "titel": "Abgabe Praktikumsbericht", "datum": null }]
+    },
+    {
+      "id": 40,
+      "gruppe": "Störfall: keine Aufgabe",
+      "text": "Wie wird das Wetter morgen?",
+      "erwartet": []
+    }
+  ]
+}
