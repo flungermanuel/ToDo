@@ -77,3 +77,47 @@ Sekunden. Virtualisierung (nur sichtbare Zeilen rendern) hätte eine Library geb
 sich mit den Animationen beim Abhaken gerieben. Die Gruppen zeigen jetzt zuerst 50 Einträge
 und den Rest per Klick, wie es die App bei älteren erledigten Deadlines schon tat. Einfacher
 zu verstehen und für eine persönliche Todo-Liste ausreichend.
+
+## Warum die KI lokal mit Ollama läuft
+
+Todos, Prüfungen und Deadlines sind persönliche Daten, und FlungDo versprach bisher „kein
+Konto, kein Server, keine Cloud“. Bei Ollama verlässt kein Text den Rechner, es gibt keinen
+API-Schlüssel und keine laufenden Kosten, und die App bleibt auch offline benutzbar. Der Preis:
+kleine Modelle auf der CPU, also einige Sekunden Wartezeit und weniger Genauigkeit als bei einem
+großen Cloud-Modell. Deshalb sind Datumsrechnung und Prüfung Sache des Codes, nicht des
+Modells, und jede Analyse endet in einer Vorschau, die man bestätigt. Die Anbindung steckt hinter
+einer kleinen Schnittstelle (`AiProvider`), ein Cloud-Anbieter ließe sich später ergänzen.
+
+## Warum der Code das Datum berechnet und nicht das Modell
+
+Kleine Sprachmodelle rechnen unzuverlässig: „übernächsten Freitag“ ist für sie Raten, und ein
+Fehler fällt nicht auf, weil das Datum plausibel aussieht. Das Modell schreibt deshalb nur ab,
+was im Text steht (`datumText`), und `resolveDate` in `src/core/capture` rechnet daraus den
+Kalendertag. Diese Funktion ist rein, deterministisch und mit Tests für Monats- und
+Jahreswechsel, Schaltjahr, Sommerzeit und Wochenstart abgesichert. Versteht sie einen Ausdruck
+nicht, bleibt die Karte als „Datum fehlt“ stehen, statt ein falsches Datum zu bekommen.
+
+## Warum eine Vorschau mit Bestätigung
+
+Ein Modell kann sich irren, und ein falsch angelegter Eintrag fällt oft erst auf, wenn die
+Deadline schon vorbei ist. Darum legt die KI-Eingabe nie etwas selbst an: Sie zeigt Karten, die
+man ändern, entfernen und bestätigen kann, Pflichtfelder sind markiert. Nach dem Übernehmen
+lässt sich der ganze Schwung mit einem Klick rückgängig machen; das löscht genau die angelegten
+Einträge und lässt spätere Änderungen stehen. Bei Fehlern öffnet sich eine Karte mit dem
+Rohtext als Titel, damit nie etwas verloren geht.
+
+## Warum die KI-Einstellungen in einer eigenen Datei stehen
+
+Das gewählte Modell ist eine Einstellung dieses Rechners, keine Nutzerdaten. Es gehört nicht
+in Export, Import und Sicherungen, und es soll auch dann funktionieren, wenn die Datenbank
+gerade nicht verfügbar ist. Deshalb steht es in `ai-settings.json` neben der Datenbank, statt
+in einer Tabelle, die den `Storage`-Vertrag und das Schema erweitert hätte. Gespeichert wird
+nur der Modellname, nie ein Eingabetext oder eine Modellantwort.
+
+## Warum das Schema der KI-Antwort von Hand geprüft wird
+
+Das Schema hat fünf Felder. Eine eigene Prüfung (`validateCaptureOutput`, rund 60 Zeilen)
+braucht keine zusätzliche Library, ist leicht zu lesen und lässt sich so bauen, wie die App
+es braucht: kaputte Einträge einzeln verwerfen, statt die ganze Antwort abzulehnen. Das
+JSON-Schema, das Ollama die Antwortform vorgibt, steht als Konstante daneben. Zod hätte beides
+aus einer Quelle erzeugt, dafür aber eine weitere Abhängigkeit gebracht.

@@ -128,3 +128,32 @@ Hinweise aus dem Main-Prozess (Übernahme fehlgeschlagen, Datei unlesbar …) sa
   Datenbank, jeweils die letzten 5
 - **Export/Import**: unter Einstellungen in der Seitenleiste, Import mit Nachfrage
 - **Nur eine Instanz**: Ein zweiter Start holt das vorhandene Fenster nach vorne
+
+## KI-Eingabe (ab 3.0)
+
+Ein Freitext („Freitag Abgabe Statistik, Mama anrufen“) wird zu Vorschau-Karten. Dieselben
+drei Schichten, keine Ausnahme:
+
+```
+Renderer   Eingabefeld / Strg+K → Vorschau-Karten → Übernehmen
+   │          captureStore, CaptureOverlay        (kennt weder Modell noch URL)
+   │  window.api.capture.analyze(text, kontext)   (preload, IPC)
+Main       registerCapture → parseInput(provider, text, kontext)
+   │          Provider.extract()  → rohe Antwort    (Fake- oder OllamaProvider)
+   │          validateCaptureOutput()  ← core       (prüft, verwirft Kaputtes einzeln)
+   │          resolveDate()            ← core       (rechnet "Freitag" in ein Datum)
+   ▼
+Renderer   cardsFromEntries()  ← core  → Karten → applyCards()  ← core → AppData
+```
+
+- **`src/core/capture`**: Schema, Validierung, `resolveDate`, Karten (`cardsFromEntries`,
+  `applyCards`, `removeCreated`). Rein, ohne Netzwerk und Modell.
+- **`src/main/ai`**: `AiProvider`-Schnittstelle, `OllamaProvider` (lokal, `/api/chat` mit
+  JSON-Schema), `FakeProvider` (feste Antworten), `parseInput` (Ablauf mit einem
+  Wiederholungsversuch), Einstellungen (`ai-settings.json`). Der Prompt liegt als Datei
+  (`prompt.de.md`).
+- **`src/shared/capture.ts`**: die Typen, die Renderer und Main gemeinsam brauchen.
+
+Fehler sind Ergebnisse, keine Ausnahmen (`AnalyzeResult`): Bei „Ollama nicht erreichbar“,
+Timeout oder kaputter Antwort bleibt der Text im Feld, und es erscheint eine Karte mit dem
+Rohtext als Titel. Eingaben und Modellantworten werden nicht gespeichert und nicht geloggt.
