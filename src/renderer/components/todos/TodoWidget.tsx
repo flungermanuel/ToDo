@@ -3,6 +3,7 @@ import type { AppData } from '@shared/types'
 import { useView, viewActions, type ViewMode } from '@renderer/state/viewStore'
 import { dayLabel, formatLongDate, formatRange, isRelativeDay, useToday } from '@renderer/lib/dates'
 import { Widget } from '@renderer/components/Widget'
+import { CaptureInput } from '@renderer/components/capture/CaptureInput'
 import { Segmented } from '@renderer/components/ui/Segmented'
 import { DayProgressBar } from './DayProgressBar'
 import { DayView } from './DayView'
@@ -57,7 +58,10 @@ export function TodoWidget({ data }: TodoWidgetProps) {
       }
       meta={<ViewNavigation unit={view.mode === 'tag' ? 'Tag' : 'Woche'} isCurrent={isCurrent} />}
       subheader={
-        view.mode === 'tag' && progress.gesamt > 0 ? <DayProgressBar {...progress} /> : undefined
+        <>
+          <CaptureInput />
+          {view.mode === 'tag' && progress.gesamt > 0 && <DayProgressBar {...progress} />}
+        </>
       }
     >
       {view.mode === 'tag' ? (

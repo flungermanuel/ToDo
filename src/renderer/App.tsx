@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { loadData, useAppStore } from './state/appStore'
+import { CaptureOverlay } from './components/capture/CaptureOverlay'
 import { TitleBar } from './components/TitleBar'
 import { TodoWidget } from './components/todos/TodoWidget'
 import { CalendarWidget } from './components/calendar/CalendarWidget'
@@ -37,6 +38,7 @@ export function App() {
               <CalendarWidget data={data} />
             </div>
             <Sidebar open={sidebarOpen} onClose={closeSidebar} data={data} />
+            <CaptureOverlay data={data} />
           </main>
         )
       )}
