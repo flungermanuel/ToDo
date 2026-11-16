@@ -48,6 +48,10 @@ nachvollziehbaren Code.
 - Hell-/Dunkelmodus automatisch nach Systemeinstellung
 - Eigene schlanke Titelleiste, keine Standard-Windows-Optik
 - Seitenleiste (Hamburger-Menü) für Kategorienverwaltung und Einstellungen
+- **KI-Eingabe** (ab 3.0): Freitext auf Deutsch („Freitag Abgabe Statistik, Mama anrufen,
+  Prüfung Analysis am 12. Februar“) wird zu Vorschau-Karten für Todo, Deadline und Prüfung,
+  die man ändert und bestätigt, danach mit einem Klick rückgängig zu machen. Eingabefeld im
+  Todo-Widget oder `Strg+K`. Die Analyse läuft lokal über Ollama, die Datumsrechnung macht der Code
 - Läuft komplett lokal: kein Konto, kein Server, keine Cloud
 - Windows-Installer (`npm run dist`) mit eigenem App-Icon
 
@@ -55,7 +59,7 @@ nachvollziehbaren Code.
 
 | Stufe | Inhalt |
 |---|---|
-| KI-Eingabe | Freitext wie „Statistik-Abgabe Freitag, wichtig“ wird per `parseInput(text)` in ein Todo/eine Deadline umgewandelt – als austauschbare Funktion |
+| Agent (V4) | Eine Agentenschleife, die mehrere Schritte selbst ausführt (noch nicht gebaut) |
 | Später denkbar | Wiederholungen, Erinnerungen, Uhrzeiten, Drag & Drop zwischen Tagen, Sync |
 
 ---
@@ -87,7 +91,7 @@ nachvollziehbaren Code.
 ```
 
 Warum das wichtig ist: Die Logik ist unabhängig von Oberfläche und Datei.
-Dadurch lässt sich die Speicherung (JSON → SQLite) oder die Eingabe (Formular → KI)
+Dadurch ließen sich die Speicherung (JSON → SQLite) und die Eingabe (Formular → KI)
 austauschen, ohne den Rest umzubauen.
 
 ### Datenmodell
@@ -117,13 +121,15 @@ automatisch migriert und vorher gesichert. Details: `docs/architecture.md`.
   geschlossen ist.
 - **Daten einspielen:** Eine JSON-Datei in diesem Format lässt sich über „Daten importieren“
   übernehmen (mit Nachfrage und automatischer Sicherung).
-- **Eingabe von außen:** Die geplante Funktion `parseInput(text)` ist die vorgesehene
-  Schnittstelle, um Text (z. B. aus einem KI-Assistenten) in Todos/Deadlines zu verwandeln.
+- **Eingabe von außen:** `parseInput(provider, text, kontext)` in `src/main/ai` wandelt Text in
+  geprüfte Einträge um; der `AiProvider` dahinter ist austauschbar (Ollama, Fake). Die Prüfung
+  (`validateCaptureOutput`) und die Datumsauflösung (`resolveDate`) liegen in `src/core/capture`.
 - **Logik wiederverwenden:** `src/core` hat keine UI- oder Datei-Abhängigkeiten und kann
   direkt in anderen TypeScript-Projekten genutzt werden.
 
 ## Status
 
-Aktuelle Version: **2.0.0**: Speicherung in SQLite, Export/Import, automatische Sicherungen,
-Tests und CI. Todos, Deadlines, Prüfungen, Kategorien, Tages-/Wochenansicht, Kalender und
-Windows-Installer sind fertig. Die KI-Eingabe folgt.
+Aktuelle Version: **3.0.0**: KI-Eingabe über Ollama (lokal) mit Vorschau und Rückgängig. Dazu
+Speicherung in SQLite, Export/Import, automatische Sicherungen, Tests und CI. Todos, Deadlines,
+Prüfungen, Kategorien, Tages-/Wochenansicht, Kalender und Windows-Installer sind fertig.
+Die KI-Eingabe braucht ein separat installiertes Ollama (siehe README).
