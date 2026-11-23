@@ -12,7 +12,7 @@ interface CaptureOverlayProps {
   data: AppData
 }
 
-// Schnellleiste (Strg+K) und Vorschau in einem: zentriertes Overlay mit Eingabefeld oben,
+// Schnellleiste (Strg+Leerzeichen) und Vorschau in einem: zentriertes Overlay mit Eingabefeld oben,
 // darunter je nach Phase Hinweis, Ladezustand oder die Vorschau-Karten.
 // Esc bricht eine laufende Analyse ab; sonst verwirft Esc die Vorschau (der Text bleibt).
 export function CaptureOverlay({ data }: CaptureOverlayProps) {

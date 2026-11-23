@@ -51,7 +51,7 @@ nachvollziehbaren Code.
 - **KI-Eingabe** (ab 3.0): Freitext auf Deutsch („Freitag Abgabe Statistik, Mama anrufen,
   Prüfung Analysis am 12. Februar“) wird zu Vorschau-Karten für Todo, Deadline und Prüfung,
   die man ändert und bestätigt, danach mit einem Klick rückgängig zu machen. Eingabefeld im
-  Todo-Widget oder `Strg+K`. Die Analyse läuft lokal über Ollama, die Datumsrechnung macht der Code
+  Todo-Widget oder `Strg+Leerzeichen` (global). Die Analyse läuft lokal über Ollama, die Datumsrechnung macht der Code
 - Läuft komplett lokal: kein Konto, kein Server, keine Cloud
 - Windows-Installer (`npm run dist`) mit eigenem App-Icon
 

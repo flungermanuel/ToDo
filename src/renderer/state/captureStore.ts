@@ -91,7 +91,7 @@ function showResult(result: AnalyzeResult, text: string): void {
 }
 
 export const captureActions = {
-  /** Öffnet die Schnellleiste (z. B. mit Strg+K) */
+  /** Öffnet die Schnellleiste (z. B. per Hotkey) */
   open: () => set({ open: true }),
 
   /** Schließt und verwirft die Vorschau – der Eingabetext bleibt */

@@ -135,7 +135,7 @@ Ein Freitext („Freitag Abgabe Statistik, Mama anrufen“) wird zu Vorschau-Kar
 drei Schichten, keine Ausnahme:
 
 ```
-Renderer   Eingabefeld / Strg+K → Vorschau-Karten → Übernehmen
+Renderer   Eingabefeld / Strg+Leerzeichen → Vorschau-Karten → Übernehmen
    │          captureStore, CaptureOverlay        (kennt weder Modell noch URL)
    │  window.api.capture.analyze(text, kontext)   (preload, IPC)
 Main       registerCapture → parseInput(provider, text, kontext)

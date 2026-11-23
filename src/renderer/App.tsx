@@ -19,17 +19,9 @@ export function App() {
     void loadData()
   }, [])
 
-  // Strg+K öffnet die Schnellleiste für die KI-Eingabe – überall in der App
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'k') {
-        e.preventDefault()
-        captureActions.open()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  // Globaler Hotkey Strg+Leerzeichen (registriert in Main): Fenster ist schon vorne,
+  // hier geht nur die Schnellleiste für die KI-Eingabe auf
+  useEffect(() => window.api.app.onQuickCapture(() => captureActions.open()), [])
 
   return (
     <div className="flex h-full flex-col">

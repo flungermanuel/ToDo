@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import { app, BrowserWindow, nativeTheme } from 'electron'
 import { createAiService } from './ai/aiService'
 import { registerCaptureHandlers } from './ai/registerCapture'
+import { registerQuickOpenHotkey, unregisterQuickOpenHotkey } from './hotkey'
 import { registerIpcHandlers } from './ipc'
 import { Notices } from './notices'
 import { perfMark } from './perf'
@@ -98,6 +99,9 @@ app.whenReady().then(async () => {
   registerIpcHandlers(storage, notices)
   registerCaptureHandlers(await createAiService(dataDir))
   createWindow()
+  if (!registerQuickOpenHotkey(() => BrowserWindow.getAllWindows()[0])) {
+    notices.add('Strg+Leerzeichen konnte nicht belegt werden, ein anderes Programm nutzt es.')
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -112,6 +116,7 @@ app.on('window-all-closed', () => {
 // damit nichts verloren geht.
 let flushed = false
 app.on('will-quit', (event) => {
+  unregisterQuickOpenHotkey()
   if (flushed || !storage) return
   event.preventDefault()
   void storage.close().finally(() => {

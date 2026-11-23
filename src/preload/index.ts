@@ -12,7 +12,12 @@ const api: Api = {
     confirmImport: () => ipcRenderer.invoke(IpcChannels.dataImportConfirm)
   },
   app: {
-    takeNotices: () => ipcRenderer.invoke(IpcChannels.appNotices)
+    takeNotices: () => ipcRenderer.invoke(IpcChannels.appNotices),
+    onQuickCapture: (listener) => {
+      const handler = () => listener()
+      ipcRenderer.on(IpcChannels.appQuickCapture, handler)
+      return () => ipcRenderer.removeListener(IpcChannels.appQuickCapture, handler)
+    }
   },
   capture: {
     analyze: (text, context) => ipcRenderer.invoke(IpcChannels.captureAnalyze, text, context),

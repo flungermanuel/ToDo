@@ -48,7 +48,7 @@ Mehr dazu:
 
 ## KI-Eingabe
 
-Ein Eingabefeld im Todo-Widget (oder `Strg+K` von überall) nimmt Freitext auf Deutsch:
+Ein Eingabefeld im Todo-Widget (oder `Strg+Leerzeichen` von überall, auch aus anderen Programmen) nimmt Freitext auf Deutsch:
 
 > Freitag Abgabe Statistik, Mama anrufen, Prüfung Analysis am 12. Februar
 

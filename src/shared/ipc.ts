@@ -10,6 +10,7 @@ export const IpcChannels = {
   dataImportPick: 'data:import-pick',
   dataImportConfirm: 'data:import-confirm',
   appNotices: 'app:notices',
+  appQuickCapture: 'app:quick-capture',
   captureAnalyze: 'capture:analyze',
   captureCancel: 'capture:cancel',
   aiStatus: 'ai:status',
@@ -57,6 +58,8 @@ export interface DataApi {
 export interface AppApi {
   /** Hinweise aus Main (z. B. unlesbare Daten), jeder wird nur einmal geliefert. */
   takeNotices(): Promise<string[]>
+  /** Main meldet: Der globale Hotkey wurde gedrückt, die Schnellleiste soll aufgehen. */
+  onQuickCapture(listener: () => void): () => void
 }
 
 export interface CaptureApi {
