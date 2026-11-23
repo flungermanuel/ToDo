@@ -12,7 +12,9 @@ export const QUICK_OPEN_ACCELERATOR = 'Control+Space'
 export function registerQuickOpenHotkey(getWindow: () => BrowserWindow | undefined): boolean {
   return globalShortcut.register(QUICK_OPEN_ACCELERATOR, () => {
     const win = getWindow()
-    if (!win) return
+    // Solange ein Dialog (Export/Import) offen ist, ist das Hauptfenster gesperrt:
+    // dann nichts tun, sonst läge die Schnellleiste hinter dem Dialog
+    if (!win || !win.isEnabled()) return
     if (win.isMinimized()) win.restore()
     win.show()
     win.focus()
