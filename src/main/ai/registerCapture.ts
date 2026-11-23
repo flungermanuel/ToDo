@@ -4,6 +4,9 @@ import type { AnalyzeResult, CaptureContext } from '@shared/capture'
 import type { AiService } from './aiService'
 import { parseInput } from './parseInput'
 
+const MAX_CATEGORIES = 100
+const MAX_NAME_LENGTH = 200
+
 /**
  * Hängt die KI-Eingabe an IPC. Es läuft immer nur eine Analyse: Eine neue (oder "Abbrechen")
  * beendet die vorherige. Was aus dem Renderer kommt, wird geprüft, bevor es weitergeht.
@@ -47,7 +50,10 @@ function toInput(
     text,
     context: {
       heute,
-      kategorien: kategorien.filter((k): k is string => typeof k === 'string'),
+      // Obergrenze, damit der Renderer (oder ein importierter Stand) die Anfrage nicht aufblähen kann
+      kategorien: kategorien
+        .slice(0, MAX_CATEGORIES)
+        .filter((k): k is string => typeof k === 'string' && k.length <= MAX_NAME_LENGTH),
       ...(typeof aktuelleKategorie === 'string' ? { aktuelleKategorie } : {})
     }
   }
