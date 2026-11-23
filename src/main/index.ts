@@ -41,6 +41,13 @@ if (!isPrimaryInstance) {
   })
 }
 
+// Erlaubt ist nur die gebaute Seite (file:) und im Dev-Modus der Vite-Server.
+function isAppUrl(url: string): boolean {
+  const devUrl = process.env['ELECTRON_RENDERER_URL']
+  if (!app.isPackaged && devUrl) return new URL(url).origin === new URL(devUrl).origin
+  return url.startsWith('file:')
+}
+
 function createWindow(): void {
   const win = new BrowserWindow({
     title: APP_NAME,
@@ -59,6 +66,13 @@ function createWindow(): void {
       nodeIntegration: false,
       sandbox: true
     }
+  })
+
+  // Sicherheit: Das Fenster darf nur die eigene App zeigen. Links und window.open werden
+  // nicht im Fenster geöffnet, denn dort hätte fremder Inhalt Zugriff auf window.api.
+  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+  win.webContents.on('will-navigate', (event, url) => {
+    if (!isAppUrl(url)) event.preventDefault()
   })
 
   // Erst anzeigen, wenn der Inhalt gerendert ist – verhindert weißes Aufblitzen.
