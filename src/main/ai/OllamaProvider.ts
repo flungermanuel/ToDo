@@ -131,13 +131,29 @@ export class OllamaProvider implements AiProvider {
 
 /** Prompt aus der Datei mit Datum, Wochentag und Kategorien befüllt */
 export function buildSystemPrompt(request: ExtractRequest): string {
-  const categories = request.kategorien.length > 0 ? request.kategorien.join(', ') : '(keine)'
+  const names = request.kategorien.slice(0, MAX_PROMPT_CATEGORIES).map(sanitizeName)
+  const categories = names.length > 0 ? names.join(', ') : '(keine)'
   return promptTemplate
     .replaceAll('{{HEUTE}}', request.heute)
     .replaceAll('{{WOCHENTAG}}', request.wochentag)
     .replaceAll('{{KATEGORIEN}}', categories)
-    .replaceAll('{{AKTUELLE_KATEGORIE}}', request.aktuelleKategorie ?? '(keine)')
+    .replaceAll('{{AKTUELLE_KATEGORIE}}', sanitizeName(request.aktuelleKategorie ?? '(keine)'))
     .trim()
+}
+
+const MAX_PROMPT_CATEGORIES = 30
+const MAX_PROMPT_NAME_LENGTH = 40
+
+/**
+ * Kategorienamen stehen im Systemprompt. Ein importiertes JSON könnte dort Anweisungen
+ * verstecken (Zeilenumbrüche, Markierungen) – darum nur eine kurze Zeile ohne Sonderzeichen.
+ */
+export function sanitizeName(name: string): string {
+  return name
+    .replace(/[\p{Cc}<>{}]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, MAX_PROMPT_NAME_LENGTH)
 }
 
 /**
