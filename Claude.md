@@ -147,14 +147,14 @@ Priorität: am Todo sichtbar.
 - Doku: README.md, docs/architecture.md, docs/decisions.md, docs/performance.md, docs/packaging.md
 
 ## V3.0 (KI-Eingabe, Auftrag: docs/task-v3.md)
-- Eingabefeld im Todo-Widget und Schnellleiste `Strg+K`: Freitext auf Deutsch → Vorschau-Karten
+- Eingabefeld im Todo-Widget und Schnellleiste per globalem Hotkey `Strg+Leerzeichen` (src/main/hotkey.ts): Freitext auf Deutsch → Vorschau-Karten
   für Todo, Deadline und Prüfung, die man ändert und bestätigt; danach „Rückgängig“
 - Deadline-Karte mit Schalter „Todo dazu anlegen“ (verknüpftes Todo)
 - Analyse lokal über Ollama; schlägt sie fehl, öffnet sich eine Karte mit dem Rohtext als Titel
 - Einstellungen: Bereich „KI-Eingabe“ in der Seitenleiste (Status, Modellwahl, Einrichtungshinweis)
 - Evaluation mit 40 Sätzen (`eval/cases.json`), Ergebnis und Modellwahl in docs/evaluation.md
 - Nicht in V3.0: Chatverlauf, Agenten, Tagesplanung, Unteraufgaben-Vorschläge, Sprache, Englisch,
-  Uhrzeiten, Wiederholungen, globaler Hotkey/Tray; Claude-Provider (optional) nicht umgesetzt
+  Uhrzeiten, Wiederholungen, Tray; Claude-Provider (optional) nicht umgesetzt
 
 ## Design
 - Systemschrift (-apple-system, "Segoe UI"), viel Weißraum, 12 px Eckenradius, dezente Schatten
